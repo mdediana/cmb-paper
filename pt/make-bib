@@ -1,0 +1,13 @@
+#!/bin/bash
+
+export LANG=latin1
+
+tex=cmb.tex
+in=../../diss/bibliografia.bib
+out=bibliografia.bib
+
+rm $out
+for c in $(./extract-refs $tex); do
+  echo $c
+  sed -n "/$c/,/^}$/ p" $in >> $out
+done
