@@ -209,7 +209,7 @@ de E/S observados foram devidos à rede.
 
 \item \textbf{Capacidade dos centros de processamento de dados:} Os centros de
 processamento de dados tinham a mesma capacidade, com a mesma quantidade de nós
-e os nós têm a mesma configuração de hardwarei.
+e os nós têm a mesma configuração de hardware.
 
 \item \textbf{Algoritmo de particionamento das chaves:} O algoritmo padrão do
 Riak foi usado (espalhamento consistente).
@@ -309,7 +309,7 @@ fatores em um único projeto de experimentos 2\textsuperscript{k}. O problema é
 que mesmo com apenas dois níveis por fator, a quantidade final de experimentos
 seria proibitiva.
 
-A opção adotada então foi dividí-los em grupos menores e realizar experimentos
+A opção adotada então foi dividi-los em grupos menores e realizar experimentos
 para cada grupo. O problema dessa separação é o fato de se perder a comparação
 da influência de fatores de grupos diferentes. Por exemplo, localidade e
 quantidade de nós de sistema foram tratados em estudos diferentes e cada um
@@ -327,7 +327,7 @@ posteriormente pelo estudo para fatores de rede. Dado isso, a abordagem adotada
 foi usar a latência como um representante da rede quando necessário.
 
 Existiram casos onde as respostas de todos os experimentos de um estudo eram
-semelhates, independentemente dos níveis. Para tratar esses casos, também foram
+semelhantes, independentemente dos níveis. Para tratar esses casos, também foram
 calculados os coeficientes de variação\footnote{O coeficiente de variação é a
 divisão do desvio padrão pela média e é uma maneira de representar a
 variabilidade dos dados desconsiderando sua ordem de grandeza.} (CVs) das
@@ -347,20 +347,18 @@ Foram realizados 4 estudos intermediários, descritos nas subseções seguintes.
 Sempre que modo e localidade precisaram ser fixados, eles o foram
 respectivamente em \emph{lt\_rec} e 50\%, valores que resultam em uma quantidade
 balanceada de leituras e escritas locais e remotas. A latência, quando
-necessária, foi fixada em 100 ms.
+necessária, foi fixada em 100 ms. Nos resultados, os percentis 10 e 90
+representam respectivamente requisições locais e remotas. 
 
 %% ------------------------------------------------------------------------- %%
 \subsection{Fatores de tamanho do sistema e \emph{benchmark}}
 \label{sec:fatores_de_tamanho_do_sistema_e_benchmark}
 
 As quantidades de nós de sistema e de instâncias do \emph{benchmark} não só
-influenciam as respostas, como também afetam questões operacionais, dado que
-quanto mais nós são usados, maiores as dificuldades de conseguir reservá-los no
-Grid'5000.  Portanto, um estudo foi feito para definir a influência desses
-fatores e achar valores que representassem um compromisso razoável entre tamanho
-dos experimentos e as questões operacionais.
-
-Os níveis selecionados foram (entre parênteses está o identificador do fator na
+influenciavam as respostas, como também afetavam questões operacionais ligadas a
+reserva de nós no Grid'5000. Portanto, um estudo foi feito para definir a
+influência desses fatores. Os níveis selecionados foram (entre parênteses está o
+identificador do fator na
 Tabela~\ref{tab:estudo_para_quantidade_de_nos_do_sistema}):
 
 \begin{itemize}
@@ -372,14 +370,6 @@ Tabela~\ref{tab:estudo_para_quantidade_de_nos_do_sistema}):
 \item Quantidade de threads em cada instância do \emph{benchmark} (T): 32 e 64
 
 \end{itemize}
-
-A quantidade de partições usadas pelo Riak deve ser uma potência de 2. Uma forma
-de manter a simetria do sistema foi adotar potências de 2 para os níveis da
-quantidade de nós do sistema, garantindo assim a mesma quantidade de partições
-por nó. Além disso, esse valor era limitado pela quantidade de nós disponíveis
-no aglomerado usado. Fazer o mesmo para quantidade de instâncias do
-\emph{benchmark} e quantidade de threads por instância foi uma forma de
-balancear a carga média tanto por nó quanto por partição.
 
 O resultado do estudo está na Tabela
 \ref{tab:estudo_para_quantidade_de_nos_do_sistema}.
@@ -399,20 +389,19 @@ escrita & 90 & 65 & 15 & 13 & 3 & 3 & 0 & 0 \\ \hline
 \end{tabular} \caption{Estudo para tamanho do sistema.}
 \label{tab:estudo_para_quantidade_de_nos_do_sistema} \end{table}
 
-Na maioria dos casos, o tamanho do sistema tem a maior influência nos resultados
-e a quantidade de instâncias do \emph{benchmark} e a quantidade de threads não
-são desprezíveis, ainda mais ao se considerar as interações entre elas. Apesar
-disso, esses fatores foram desconsiderados devido ao excesso de fatores. Dessa
-forma, os valores fixados foram:
+O tamanho do sistema teve a maior influência nos resultados e a quantidade de
+instâncias do \emph{benchmark} e a quantidade de threads não são desprezíveis,
+ainda mais ao se considerar as interações entre elas. Apesar disso, esses
+fatores foram desconsiderados devido ao excesso de fatores. Dessa forma, os
+valores fixados foram:
 
 \begin{itemize}
 
-\item Quantidade de nós do sistema: 16 (maior valor)
+\item Quantidade de nós do sistema: 16
 
-\item Quantidade de instâncias do \emph{benchmark}: 4 (maior valor)
+\item Quantidade de instâncias do \emph{benchmark}: 4
 
-\item Quantidade de threads em cada instância do \emph{benchmark}: 32 (menor
-valor)
+\item Quantidade de threads em cada instância do \emph{benchmark}: 32
 
 \end{itemize}
 
@@ -424,13 +413,11 @@ limitações de recursos do aglomerado.
 %% ------------------------------------------------------------------------- %%
 \subsection{Fatores de banco de dados} \label{sec:fatores_de_banco_de_dados}
 
-Um estudo foi feito para dimensionar o tamanho do banco de dados, que afeta o
-uso de memória e de banda. Os experimentos consideraram a latência como fator
-para verificar a importância relativa entre esses fatores e a rede.
-
-Os níveis selecionados foram (entre parênteses está o identificador do fator na
-Tabela~\ref{tab:estudo_para_quantidade_e_tamanho_dos_objetos_armazenados}, L
-representa latência):
+Um estudo foi feito para dimensionar o tamanho do banco de dados, que afetava o
+uso de memória e de banda. Os níveis selecionados foram (entre parênteses está o
+identificador do fator na
+Tabela~\ref{tab:estudo_para_quantidade_e_tamanho_dos_objetos_armazenados} e L é
+a latência):
 
 \begin{itemize}
 
@@ -459,10 +446,10 @@ escrita & 90 & 0 & 0 & 100 & 0 & 0 & 0 & 0 \\ \hline
 armazenados.}
 \label{tab:estudo_para_quantidade_e_tamanho_dos_objetos_armazenados} \end{table}
 
-A quantidade de objetos não afeta o desempenho do sistema. O tamanho dos objetos
-não afeta o desempenho das requisições remotas, mas com relação às requisições
-locais aparece com 100\% de influência. Apesar disso, o CV das requisições
-locais indica que sua influência na prática não é tão grande -- 19\% para
+A quantidade de objetos não afetou o desempenho do sistema. O tamanho dos
+objetos não afetou o desempenho das requisições remotas, mas com relação às
+requisições locais apareceu com 100\% de influência. Apesar disso, o CV das
+requisições locais indicava que sua influência não era tão grande -- 19\% para
 leituras e 16\% para escritas. Assim, os valores fixados foram:
 
 \begin{itemize}
@@ -473,22 +460,20 @@ leituras e 16\% para escritas. Assim, os valores fixados foram:
 
 \end{itemize}
 
-Como o tempo de aquecimento depende da quantidade de objetos armazenados, quanto
-menor essa quantidade, mais rápida é a execução dos experimentos. Por outro
-lado, a opção foi por um número intermediário de modo a evitar um excesso de
-conflitos. Já no caso do tamanho dos objetos armazenados, o valor foi escolhido
-baseado em um estudo dos sistemas de caching distribuído no Facebook, que relata
-que 90\% dos objetos nesses sistemas são menores do que 500 bytes
-\cite{Atikoglu2012}.
+O tempo de aquecimento dependia da quantidade de objetos armazenados, portanto
+quanto menor essa quantidade, mais rápida era a execução dos experimentos. Por
+outro lado, um número muito pequeno resultaria em excesso de conflitos. No caso
+do tamanho dos objetos armazenados, o valor foi escolhido baseado em estudo dos
+sistemas de caching no Facebook, que relata que 90\% dos objetos são menores do
+que 500 bytes \cite{Atikoglu2012}.
 
 %% ------------------------------------------------------------------------- %%
 \subsection{Fatores de rede} \label{sec:fatores_de_rede}
 
 Dado o objetivo do trabalho, o estudo para fatores de rede era um dos mais
-importantes da etapa de seleção de fatores.
-
-Os níveis inicialmente selecionados foram (entre parêenteses está o
-identificador do fator na Tabela~\ref{tab:estudo_para_fatores_de_rede}):
+importantes da etapa de seleção de fatores. Os níveis inicialmente selecionados
+foram (entre parênteses está o identificador do fator na
+Tabela~\ref{tab:estudo_para_fatores_de_rede}):
 
 \begin{itemize}
 
@@ -507,53 +492,29 @@ identificador do fator na Tabela~\ref{tab:estudo_para_fatores_de_rede}):
 \end{itemize}
 
 Os níveis da latências foram baseados em um estudo que relata as latências entre
-os centros de processamento de dados dos Amazon Web Services \cite{Sovran2011}.
-Os centros de processamento de dados considerados são Califórnia (EUA -- Costa
-Oeste), Virginia (EUA -- Costa Leste), Irlanda e Singapura. A menor latência
-observada foi 82 ms entre os centros de processamento de dados dos EUA e a maior
-foi 277 ms entre Irlanda e Singapura.
+as regões do AWS \cite{Sovran2011}. A menor latência observada foi 82 ms entre
+os centros de processamento de dados dos EUA e a maior foi 277 ms entre Irlanda
+e Singapura.
+ 
+Tanto H-TCP quanto CUBIC foram projetados com foco em redes com largura de banda
+e latências grandes (BDP alto) e foram escolhidos pois são citados nas
+referências sobre otimizações da pilha TCP para WANs \cite{ESNet2012}.
 
-O mesmo estudo usado para latência apresenta um gráfico com grandes variações de
-latência, chegando a máximos de até 3 ordens de grandeza em alguns períodos
-curtos. O projeto PingER\footnote{\emph{Ping End-to-end Reporting} (Relatório de
-Ping Fim-a-fim) é um projeto de Stanford que monitora o desempenho fim-a-fim de
-enlaces de Internet, em 700 sítios e 160 países.} \cite{Pinger2013}, por sua
-vez, mostra em janeiro de 2013 uma média de latência de 238,062 ms com desvio
-padrão de 142,996, o que resulta em uma variação de 60\%. Os 11 meses anteriores
-apresentavam valores semelhantes.
-
-As taxas de perda foram escolhidas com base em medidas feitas pelo projeto
-PingER, que mede desempenho de conexões fim-a-fim na Internet. A mediana das
-perdas medidas em janeiro de 2013 foi 0,119\% e a mediana do último ano foi
-0,178\%. O mesmo relatório mostra perdas bem mais altas em medições específicas,
-mas este trabalho considerou que a WAN entre os dois centros de processamento de
-dados é de boa qualidade, portanto não apresentaria taxas de perda muito altas.
-
-O mesmo estudo mostra taxas de duplicação de pacotes muitos baixas (0\%).
-Embora os valores usados neste estudo tenham sido muito grandes, duplicação de
-pacotes não influenciou a resposta (ver abaixo).
-
-Duas referências sobre reordenação de pacotes foram encontradas. A primeira, o
-projeto PingER, mostra taxas muito baixas -- em janeiro de 2013, média de
-0,006\% e mediana de 0\%. Estudo realizado em 2003 entre sítios na China mostra
-taxas de reordenação de pacotes de 3,187\% \cite{Wang2004}. Os valores usados no
-experimento foram maiores, mas mesmo assim reordenação de pacotes não
-influenciou a resposta (ver abaixo).
-
-Tanto H-TCP \cite{Leith2004} quanto CUBIC \cite{Ha2008} foram projetados com
-foco em redes com largura de banda e latências grandes (BDP alto). Ambos já
-estavam disponíveis no Linux usado nos experimentos, sendo que TCP CUBIC é o
-padrão do kernel do Linux a partir da versão 2.6.19. Eles foram escolhidos pois
-são citados nas referências sobre otimizações da pilha TCP para WANs
-\cite{ESNet2012}.
+O projeto PingER\footnote{\emph{Ping End-to-end Reporting} (Relatório de Ping
+Fim-a-fim) monitora o desempenho fim-a-fim de enlaces de Internet.} serviu de
+base para os outros fatores\cite{Pinger2013}.  Ele mostra em janeiro de 2013 uma
+média de latência de 238,062 ms com desvio padrão de 142,996, o que resulta em
+uma variação de 60\%. Os 11 meses anteriores apresentavam valores semelhantes. A
+mediana da taxa de perda de pacotes do último ano foi 0,178\%. A taxa de
+duplicação de pacotes é muito baixa, em janeiro de 2013 a média foi 0,006\% e a
+mediana foi 0\%. Os valores usados no experimento para duplicação e reordenação
+foram bem maiores do que os observados pelo PingER, mas mesmo assim não
+influenciaram a resposta (ver abaixo).
 
 No emulador de rede, a latência define o mínimo e a variação o máximo a que ela
 pode chegar. Por exemplo, ao fazer a configuração de 100 ms de latência e 60\%
-de variação, o emulador vai gerar valores entre 100 ms e 160 ms aleatoriamente.
-Mas redes não apresentam uma variação aleatória de latência e é possível
-configurar uma distribuição da latência no emulador. No caso deste estudo, foi
-usada a distribuição normal. Além disso, o emulador foi configurado com 100
-Mb/so como largura de banda da WAN.
+de variação, o emulador gera valores entre 100 ms e 160 ms. Os valores gerados
+obedeciam a distribuição normal dentro da faixa de latência especificada.
 
 O resultado do estudo está na Tabela \ref{tab:estudo_para_fatores_de_rede}. Com
 exceção dos fatores e da interação entre latência e variação de latência, todas
@@ -574,9 +535,11 @@ escrita & 90 & 69 & 23 & 1 & 0 & 0 & 0 & 6\\ \hline
 \caption{Estudo para fatores de rede. A soma para escritas não é 100\% devido a
 arredondamento.} \label{tab:estudo_para_fatores_de_rede}
 
-\end{table} A latência, a variação de latência e a interação de primeira ordem
-entre elas respondem por 100\% dos resultados. Assim, os níveis escolhidos para
-esses fatores nos experimentos foram:
+\end{table}
+
+A latência, a variação de latência e a interação de primeira ordem entre elas
+responderam por 100\% dos resultados. Assim, os níveis escolhidos para esses
+fatores nos experimentos foram:
 
 \begin{itemize} \item Latência da WAN (ms): 0, 100, 200 e 300
 
@@ -586,9 +549,8 @@ esses fatores nos experimentos foram:
 
 Níveis nulos de latência e variação da latência equivalem a ter todo o sistema
 operando em uma rede local. Os resultados obtidos para esses casos foram usados
-como auxílio na interpretação dos resultados, mas não foram considerados na
-análise final dado que sistemas georeplicados, por definição, não operam nessas
-condições.
+como auxílio na interpretação dos resultados, mas não foram considerados no
+estudo final.
 
 Os valores fixados dos fatores desconsiderados foram:
 
@@ -604,34 +566,13 @@ Os valores fixados dos fatores desconsiderados foram:
 
 \end{itemize}
 
-Taxas de perda, duplicação e reordenação  de pacotes foram ignoradas no estudo
-final. O algoritmo de congestionamento foi fixado como CUBIC, pois esse é o
-padrão no sistema Linux utilizado nos experimentos.
-
-Apesar da taxa de reordenação de pacotes ser fixada, a ocorrência de alguns
-pacotes fora de ordem é possível dada a variação da latência. Por exemplo, com
-uma latência de 100 ms e uma variação de 50\%, é possível que o emulador aplique
-atrasos de 120ms para um pacote e 80 ms para um outro no mesmo milissegundo, o
-que faz com que o segundo pacote seja transmitido antes do primeiro.
-
-Um comentário final é que o mesmo estudo havia sido realizado anteriormente com
-níveis de perda de pacotes 0,01\% e 1\%. Nesse estudo, a perda de pacotes era
-mais influente até do que a variação da latência. Mas como redes normalmente não
-apresentam taxas de perda de pacotes tão altas quanto 1\%, o estudo foi refeito
-com nível máximo de 0,1\% e a perda de pacotes não afetou o resultado nesse
-caso.
-
 %% ------------------------------------------------------------------------- %%
 \subsection{Fatores de carga de trabalho}
 \label{sec:fatores_de_carga_de_trabalho}
 
-Juntamente com o estudo para fatores de rede, o estudo para fatores de carga de
-trabalho era um dos mais importantes, dado o objetivo deste trabalho. Os
-experimentos também consideraram a latência como fator para verificar a
-importância relativa entre os fatores de carga de trabalho e a rede.
-
-Os níveis selecionados foram (entre parêenteses está o identificador do fator na
-Tabela~\ref{tab:estudo_para_fatores_de_carga_de_trabalho}):
+Este era um dos estudos mais importantes juntamente ao estudo para fatores de
+rede. Os níveis selecionados foram (entre parênteses está o identificador do
+fator na Tabela~\ref{tab:estudo_para_fatores_de_carga_de_trabalho}):
 
 \begin{itemize}
 
@@ -641,30 +582,10 @@ Tabela~\ref{tab:estudo_para_fatores_de_carga_de_trabalho}):
 média para cada objeto é a mesma) e concentrada (a taxa de chegada segue uma
 distribuição Pareto)
 
-\item Localidade (X): 50 e 90\%
+\item Localidade (X): 50\% (sem localidade) e 90\% (90\% dos acessos para
+determinado objeto vindo de um centro de processamento de dados e 10\% do outro)
 
 \end{itemize}
-
-A relação leitura/escrita 2:1 representa uma carga balanceada entre os dois
-tipos de operações e a 10:1 representa uma carga intensiva de leituras. A
-consistência na linha do tempo pode tornar um sistema sob cargas com um maior
-número de escritas inviável pois as escritas se tornam indisponíveis em caso de
-falha. Assim, este estudo considera situações em que ela é competitiva quando
-comparada com a consistência em momento indeterminado, por isso as relações
-leitura/escrita usadas resultavam em mais leituras que escritas. Além disso, ao
-atualizar um objeto na consistência em momento indeterminado, é necessário o
-envio do relógio vetorial, por isso uma leitura\footnote{É possível fazer
-atualizações sem relógio vetorial, mas isso cria versões concorrentes do mesmo
-objeto.} é realizada pelo \emph{benchmark} antes de toda atualização. Isso
-restringe a quantidade de escritas a um máximo de 50\% da carga de trabalho.  A
-popularidade dos objetos uniforme representa uma taxa de chegada de requisições
-média igual entre os objetos e concentrada representa uma taxa de chegada que
-segue uma distribuição Pareto.
-
-Os níveis de localidade foram escolhidos de modo a ter situações sem influência
-de localidade (50\%) e com localidade alta (90\%). O valor de localidade alta é
-baseado no relatado em estudo feito pelo Yahoo! em seus sistemas de produção
-\cite{Cooper2008}.
 
 Como os modos possuem comportamentos diferentes para requisições locais e
 remotas, os experimentos foram executados para cada modo. O resultado para
@@ -677,65 +598,50 @@ latência de 100\% para \emph{ind2}, \emph{lt\_qqer} e \emph{lt\_rec}
 A análise da relação leitura/escrita e localidade não usou percentis, mas sim a
 média do tempo de resposta de todas as requisições (leituras e escritas). Isso
 porque o primeiro fator diz respeito à composição entre leituras e escritas e o
-segundo à composição entre requisições locais e remotas, portanto esses fatores
-não fazem sentido nos percentis separados por tipo de requisição. Por exemplo,
-com localidade de 50\% percebe-se que o percentil 70 representa requisições
-remotas, enquanto com localidade de 90\% o mesmo percentil representa
-requisições locais. Se a análise fosse feita por percentis, essa informação se
-perderia e localidade nunca teria influência. O resultado do estudo está na
-Tabela \ref{tab:estudo_para_fatores_de_carga_de_trabalho}.
+segundo altera a composição entre requisições locais e remotas, portanto esses
+fatores não fazem sentido nos percentis separados por tipo de requisição. Por
+exemplo, com localidade de 50\% percebe-se que o percentil 70 representa
+requisições remotas, enquanto com localidade de 90\% o mesmo percentil
+representa requisições locais. Se a análise fosse feita por percentis, essa
+informação se perderia e localidade nunca teria influência. O resultado do
+estudo está na Tabela \ref{tab:estudo_para_fatores_de_carga_de_trabalho}
+(colunas com todas as células menores do que 5\% foram removidas).
 
-\begin{table}[ht] \centering \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
-\hline
+\begin{table}[ht] \centering \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|} \hline
 
-Modo & R & X & P & L & RX & RP & RL & XP & XL & PL & RXP & RXL & RPL & XPL &
-RXPL\\ \hline \emph{ind1} & 19 & 12 & 2 & 31 & 0 & 3 & 2 & 4 & 6 & 6 & 4 & 0 & 0
-& 8 & 1\\ \hline
+Modo & R & X & P & L & RX & RL & XL & PL & XPL\\ \hline
 
-\emph{ind2} & 50 & 0 & 0 & 39 & 0 & 0 & 11 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
-\hline
+\emph{ind1} & 19 & 12 & 2 & 31 & 0 & 2 & 6 & 6 & 8\\ \hline
 
-\emph{lt\_qqer} & 25 & 30 & 0 & 19 & 9 & 0 & 6 & 0 & 8 & 0 & 0 & 3 & 0 & 0 & 0\\
-\hline
+\emph{ind2} & 50 & 0 & 0 & 39 & 0 & 11 & 0 & 0 & 0\\ \hline
 
-\emph{lt\_rec} & 0 & 53 & 0 & 34 & 0 & 0 & 0 & 0 & 13 & 0 & 0 & 0 & 0 & 0 & 0\\
-\hline
+\emph{lt\_qqer} & 25 & 30 & 0 & 19 & 9 & 6 & 8 & 0 & 0\\ \hline
 
-\end{tabular} \caption{Estudo para fatores de carga de trabalho.  }
+\emph{lt\_rec} & 0 & 53 & 0 & 34 & 0 & 0 & 13 & 0 & 0\\ \hline
+
+\end{tabular} \caption{Estudo para fatores de carga de trabalho.}
 \label{tab:estudo_para_fatores_de_carga_de_trabalho}
 
 \end{table}
 
-Como esperado, localidade e latência influenciam as respostas em geral. Uma
-observação é o fato de inclusive \emph{ind1} ser afetada por latência. Isso
-provavelmente é resultado dos mecanismos de replicação e correção de leituras
-serem afetados pela latência.
-
-O impacto de popularidade dos objetos é praticamente nulo. Talvez em uma
-situação em que o sistema recebesse uma carga maior, como no caso de um teste de
-sobrecarga, esse fator passasse a ser influente. Como não é o caso, ele foi
-desconsiderado e fixado no valor que simplifica o entendimento dos resultados.
-Em trabalhos futuros, experimentos podem ser realizados com o sistema sob carga
-mais alta para verificar se a influência de popularidade aumenta.  Apesar de
-alguns modos aparentemente sofrerem impacto considerável da relação
-leitura/escrita, esse impacto é consequência da relação entre requisições locais
-e remotas. Para \emph{ind1}, tanto leituras quanto escritas são locais e a
-relação leitura/escrita e suas interações com outros fatores impacta pouco esse
-modo.  Para \emph{lt\_rec}, leituras e escritas são locais ou remotas dependendo
-da localidade e a relação leitura/escrita não impacta esse modo.  Para
-\emph{ind2}, todas as leituras são locais e metade das escritas é remota,
-portanto quando a relação leitura/escrita muda, a relação entre requisições
-locais e remotas muda proporcionalmente -- como esperado, esse modo é impactado
-pela relação leitura/escrita. A mesma observação vale para \emph{lt\_qqer}, que
-tem todas as leituras locais e escritas dependendo da localidade, e também sofre
-impacto da relação leitura/escrita.
-
-Caso o mecanismo de armazenamento fosse disco em vez de memória, a relação
-leitura/escrita provavelmente sofreria impacto de fato. Isso porque escritas
-seriam afetadas pelo tempo de escrita no disco, enquanto leituras poderiam ser
-mais rápidas pois parte delas seriam servidas a partir do cache de disco.  Mas
-como não é esse o caso, a diferença relevante é a relação entre requisições
-locais e remotas.
+Como esperado, localidade e latência influenciaram as respostas em geral. O
+impacto de popularidade dos objetos é praticamente nulo. Apesar de alguns modos
+aparentemente terem sido impactados pela relação leitura/escrita, esse impacto
+foi consequência da relação entre requisições locais e remotas. Para
+\emph{ind1}, tanto leituras quanto escritas são locais e a relação
+leitura/escrita e suas interações com outros fatores impacta pouco esse modo.
+Para \emph{lt\_rec}, leituras e escritas são locais ou remotas dependendo da
+localidade e a relação leitura/escrita não impacta esse modo. Para \emph{ind2},
+todas as leituras são locais e metade das escritas é remota, portanto quando a
+relação leitura/escrita muda, a relação entre requisições locais e remotas muda
+proporcionalmente -- como esperado, esse modo é impactado pela relação
+leitura/escrita. A mesma observação vale para \emph{lt\_qqer}, que tem todas as
+leituras locais e escritas dependendo da localidade, e também sofre impacto da
+relação leitura/escrita. Caso o mecanismo de armazenamento fosse disco em vez de
+memória, a relação leitura/escrita provavelmente sofreria impacto. Isso porque
+escritas seriam afetadas pelo tempo de escrita no disco, enquanto leituras
+poderiam ser mais rápidas pois parte delas seriam servidas a partir do cache de
+disco.
 
 Dessa forma, só foram escolhidos níveis para localidade:
 
@@ -749,13 +655,12 @@ Os valores fixados dos fatores desconsiderados foram:
 
 \begin{itemize}
 
-\item Relação leitura/escrita: 2:1 \item Popularidade dos objetos: uniforme
+\item Relação leitura/escrita: 2:1
+
+\item Popularidade dos objetos: uniforme
 
 \end{itemize}
 
-O valor da relação leitura/escrita é um balanço razoável entre leituras e
-escritas. O valor de popularidade é o mais simples para a interpretação dos
-resultados.
 %% ------------------------------------------------------------------------- %%
 \subsection{Fatores selecionados} \label{sec:fatores_selecionados}
 
