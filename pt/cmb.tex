@@ -5,6 +5,8 @@
 \usepackage{graphicx,url}
 
 \usepackage[brazil]{babel}   \usepackage[latin1]{inputenc}  
+
+\graphicspath{{./figuras/}}
      
 \sloppy
 
@@ -662,10 +664,10 @@ Os valores fixados dos fatores desconsiderados foram:
 \end{itemize}
 
 %% ------------------------------------------------------------------------- %%
-\subsection{Fatores selecionados} \label{sec:fatores_selecionados}
+\section{Análise dos Resultados}
 
-Os fatores selecionados nos estudos 2\textsuperscript{k} compuseram o estudo
-final e são apresentados junto com seus níveis na
+O estudo final consistiu de um total de 64 experimentos, com os fatores
+selecionados nos estudos 2\textsuperscript{k}, apresentados na
 Tabela~\ref{tab:fatores_e_niveis_do_estudo_final}.
 
 \begin{table}[ht] \centering \begin{tabular}{|l|c|c|} \hline
@@ -688,14 +690,143 @@ Localidade & 50\% e 90\% & 2\\ \hline
 
 \end{table}
 
-Esse número de fatores e níveis resultou em um total de 64 experimentos.
+%% ------------------------------------------------------------------------- %%
+\subsection{Amostras e Replicações}
 
-\section{Análise dos Resultados}
+Os experimentos usaram uma quantidade de amostras tal que o nível de confiança
+fosse 99\% e a exatidão fosse 1\% \cite{Jain1991}. O único caso com um número de
+amostra menor que o necessário foi \emph{lt\_rec} -- nesse caso, o mesmo nível de
+confiança foi adotado e a exatidão foi 2\%.
 
-\section{Trabalhos Relacionados}
+Uma replicação do estudo foi feita para estimar a variabilidade dos
+experimentos. Isso foi feito calculando-se os CVs de duas replicações de cada
+experimento. A média dos CVs de todos os experimentos foi 1\% para leituras e
+0,8\% para escritas, e o máximo foi 8\% para leituras e 5\% para escritas.
 
+%% ------------------------------------------------------------------------- %%
+\subsection{Análise dos Tempos de Resposta}
+\label{sec:analise_dos_tempos_de_resposta}
+
+Os resultados para latências de 100 ms, 200 ms e 300 ms apresentam o mesmo
+comportamento, portanto a opção foi fazer a análise para um deles apenas. O
+\emph{boxplot} para latência de rede de 200~ms está na Figura
+\ref{fig:boxplot_dos_tempos_de_resposta_para_latencia_de_rede_de_200_ms}. Os
+casos em que a caixa não aparece indicam que todas as requisições delimitadas
+pelos bigodes eram locais.
+
+\begin{figure}[ht] \centering
+
+\includegraphics[width=1\textwidth]{boxplot200.png}
+
+\caption{\emph{Boxplot} dos tempos de resposta para latência de rede de 200 ms.}
+\label{fig:boxplot_dos_tempos_de_resposta_para_latencia_de_rede_de_200_ms}
+\end{figure}
+
+No caso de leituras e localidade de 50\%, apenas \emph{lt\_rec} apresenta
+requisições remotas. Uma porção pequena dessas leituras tem tempo de resposta
+menor que a latência da rede, o que se explica pelo \emph{jitter} de até 60\%.
+
+Para leituras e localidade de 90\%, \emph{lt\_rec} é beneficiado, mas continua
+apresentando requisições remotas (valores atípicos no gráfico).  No caso de
+escritas e localidade de 50\%, \emph{lt\_rec} apresenta um desempenho um pouco
+melhor que \emph{ind2} e \emph{lt\_qqer}. A explicação provável para isso é o
+sistema estar menos carregado para esse modo do que os outros, o que acontece
+pois as leituras de \emph{lt\_rec} são mais lentas. Esse fato é comprovado pela
+vazão dos modos \emph{lt\_rec}, ev2 e \emph{lt\_qqer}, respectivamente, 594,
+1072, 941 operações/s.
+
+Para escritas e localidade de 90\%, \emph{lt\_rec} e \emph{lt\_qqer} apresentam
+melhor desempenho devido à localidade, mas ainda apresentam requisições remotas
+(valores atípicos no gráfico). Já \emph{ind2} continua apresentando o mesmo
+perfil que para localidade de 50\%.
+
+Os modos apresentaram o comportamento esperado. A hipótese de que a consistência
+na linha do tempo é competitiva em termos de desempenho com a consistência em
+momento indeterminado se confirma para o caso em que a localidade é alta e
+principalmente caso leituras de ``qualquer versão'' sejam usadas.
+
+%% ------------------------------------------------------------------------- %%
+\subsection{Ameaças à Validade} \label{sec:ameacas_a_validade}
+
+Muitos parâmetros foram fixados e fatores tidos como influentes foram
+desconsiderados. Com isso, estudos
+que usem outros valores para os parâmetros ou considerem outros fatores podem
+apresentar resultados diferentes. Isso vale particularmente para a quantidade de nós do
+sistema, que apareceu com influência relativamente alta. Além disso, outras
+faixas de níveis podem levar a outros resultados \cite{Jain1991}.
+
+Os experimentos consideram que todos os nós sempre operam sem falhas. Os resultados de experimentos com o sistema
+operando em algum modo de falha (desde a falha de um nó até de um centro de
+processamento de dados inteiro) devem ser diferentes dos obtidos nesse estudo.
+Observação semelhante vale para a carga do sistema.
+
+%% ------------------------------------------------------------------------- %%
+\section{Trabalhos Relacionados} \label{sec:trabalhos_relacionados}
+
+Uma abordagem comum na literatura de sistemas distribuídos é a proposta de um
+novo conceito e a implementação de um sistema que use esse conceito seguida de
+uma análise de seu desempenho. Tanto o artigo sobre o Dynamo \cite{DeCandia2007}
+quanto o sobre o PNUTS \cite{Cooper2008} apresentam análises de desempenho,
+sendo que apenas o segundo faz uma análise baseada na carga de trabalho. Há uma
+segunda publicação com experimentos com o PNUTS que analisa o consumo de banda
+de diferentes políticas de replicação em uma WAN \cite{Kadambi2011}.
+
+Muitos trabalhos apresentam análises de desempenho de sistemas de armazenamento
+que usam replicação sobre WANs. Na maior parte dos casos, o objetivo desses
+sistemas é provar outros conceitos além da eficiência do modelo de consistência
+escolhido por eles. O COPS usa consistência causal+, que é semelhante à
+consistência causal com algumas garantia a mais, e implementa transações
+\cite{Lloyd2011}. O Scatter propõe uma arquitetura ao mesmo tempo escalável e
+com consistência forte \cite{Glendenning2011}. O Windows Azure
+provê um sistema de armazenamento na nuvem com consistência forte
+\cite{Calder2011}. O Megastore usa Paxos para implementar consistência forte
+\cite{Baker2011}. Nenhum desses trabalhos apresenta comparações com outros
+sistemas ou com outros modelos de consistência. Como eles não usam uma aplicação
+para execução de testes ou ambiente comum, é difícil fazer qualquer comparação a
+partir desses trabalhos.
+
+Beyer et al. realizaram testes para analisar a relação entre as diferentes
+configurações de consistência no Cassandra e sua disponibilidade e desempenho
+\cite{Beyer2011}. Como esperado, eles notam que configurações que oferecem
+consistência mais rígida apresentam pior desempenho. Renesse e Schneider
+apresentam resultados experimentais comparando desempenho e disponibilidade de
+replicação mestre-escravo e replicação em cadeia, cada uma delas usando
+consistência forte e consistência em momento indeterminado
+\cite{VanRenesse2004}. Nenhum desses dois experimentos leva em consideração
+operação sobre WAN nem diferentes cargas de trabalho.
+
+Uma publicação com uma proposta mais próxima da deste trabalho é a comparação
+feita entre Cassandra, HBase, PNUTS e MySQL particionado horizontalmente usando
+diferentes cargas de trabalho \cite{Cooper2010}. Os resultados servem como uma
+comparação entre esses sistemas, mas dizem menos sobre seus modelos de
+consistência, dado que os sistemas apresentam arquiteturas e configurações
+diferentes. Além disso, os testes são feitos em uma rede local, não em uma WAN.
+
+%% ------------------------------------------------------------------------- %%
 \section{Conclusões}
 
+Este trabalho comparou o desempenho de um mesmo sistema de armazenamento usando
+dois modelos de consistência diferentes operando
+em uma WAN. Além disso, apresentou resultados sobre a
+infuência que diversos fatores têm sobre o desempenho de um sistema de
+armazenamento operando sobre WAN. A consistência na linha do tempo se mostrou competitiva com a
+consistência em momento indeterminado quando a localidade de escritas é alta e
+quando as leituras são de ``qualquer versão''.
+
+As principais vantagens da consistência na linha do tempo sobre em momento
+indeterminado são a garantia de que as réplicas não são atualizadas com valores
+divergentes e a existência de uma réplica mestre que corresponde à versão mais
+recente. Um cenário
+interessante para seu uso é o
+caso em que a aplicação tolera inconsistências na maioria das leituras, mas em
+algumas poucas situações precisa da versão consistente. Já sua principal desvantagem é a indisponibilidade da réplica mestre impedir escritas e leituras
+consistentes. Outra desvantagem é que mesmo sendo competitiva, ela apresenta
+variabilidade relativamente alta nos tempos de resposta. Para
+aplicações em que os requisitos de tempos de resposta são dados pelo percentil
+99,9, como é o caso da Amazon \cite{DeCandia2007}, a consistência na linha do
+tempo não é adequada.
+
+%% ------------------------------------------------------------------------- %%
 \section{Agradecimentos}
 
 Os experimentos apresentados neste trabalho foram realizados utilizando a
@@ -703,14 +834,6 @@ plataforma para experimentos Grid'5000, desenvolvida pela ação de
 desenvolvimento ALADDIN INRIA com o apoio do CNRS, RENATER e várias
 universidades, bem como outros organismos de financiamento (ver
 \url{https://www.grid5000.fr}).
-
-%\begin{figure}[ht] \centering \includegraphics[width=.5\textwidth]{fig1.jpg}
-%\caption{A typical figure} \label{fig:exampleFig1} \end{figure}
-%
-%\begin{figure}[ht] \centering \includegraphics[width=.3\textwidth]{fig2.jpg}
-%\caption{This figure is an example of a figure caption taking more than one
-%line and justified considering margins mentioned in Section~\ref{sec:figs}.}
-%\label{fig:exampleFig2} \end{figure}
 
 % \begin{table}[ht] \centering \caption{Variables to be considered on the
 % evaluation of interaction techniques} \label{tab:exTable1}

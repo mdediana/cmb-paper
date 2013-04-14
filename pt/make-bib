@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export LANG=latin1
+export LANG=pt_BR
 
 tex=cmb.tex
 in=../../diss/bibliografia.bib
