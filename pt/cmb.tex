@@ -4,7 +4,9 @@
 
 \usepackage{graphicx,url}
 
-\usepackage[brazil]{babel}   \usepackage[latin1]{inputenc}  
+\usepackage[brazil]{babel}   
+
+\usepackage[latin1]{inputenc}  
 
 \graphicspath{{./figuras/}}
      
@@ -24,24 +26,30 @@ Momento Indeterminado e\\ na Linha do Tempo}
 
 \maketitle
 
-\begin{abstract} This meta-paper describes the style to be used in articles and
-short papers for SBC conferences. For papers in English, you should add just an
-abstract while for the papers in Portuguese, we also ask for an abstract in
-Portuguese (``resumo''). In both cases, abstracts should not have more than 10
-lines and must be in the first page of the paper.  \end{abstract}
+\begin{abstract}
+
+Large-scale web systems replicate data among data centers to
+achieve high levels of performance and availability. A consistency model defines
+the tradeoffs between these requirements and replica consistency. This work
+compared experimentally the performace of a storage system using eventual
+consistency and timeline consistency. The results show that, depending on
+the workload and the network conditions, system performances for each
+consistency model are similar. This comparative is helpful for development cost
+estimates and capacity planning of large-scale web systems.
+
+\end{abstract}
      
 \begin{resumo}
 
-Replicação de dados entre diferentes centros de dados é usada por sistemas web
-de larga escala para atingir altos níveis de desempenho e disponibilidade. Um
-modelo de consistência define o balanço entre esses dois requisitos e a
-consistência dos dados entre réplicas. Este trabalho comparou experimentalmente
-o desempenho de um sistema de armazenamento georeplicado usando consistência em
-momento indeterminado e consistência na linha do tempo. As medições mostraram
-que, dependendo da carga de trabalho e das condições de rede, os desempenhos
-desses modelos de consistência são semelhantes. Esse resultado pode auxiliar
-responsáveis por sistemas web de larga escala a estimar custos de
-desenvolvimento e fazer planejamento de capacidade.
+Sistemas web de larga escala replicam dados entre centros de dados para atingir
+altos níveis de desempenho e disponibilidade. Um modelo de consistência define o
+balanço entre esses requisitos e a consistência dos dados entre réplicas. Este
+trabalho comparou experimentalmente o desempenho de um sistema de armazenamento
+georeplicado usando consistência em momento indeterminado e consistência na
+linha do tempo. Os resultados mostram que, dependendo da carga de trabalho e das
+condições de rede, os desempenhos do sistema para cada um dos modelos de
+consistência são semelhantes. Essa comparação é útil em estimativas de custo de
+desenvolvimento e de planejamento de capacidade de sistemas web de larga escala.
 
 \end{resumo}
 
@@ -84,7 +92,7 @@ relaxado e se tornou especialmente popular após a publicação sobre o Dynamo da
 Amazon \cite{DeCandia2007,Lakshman2010,Riak}. Um modelo de consistência para
 sistemas georeplicados menos popular, que busca um meio termo entre consistência
 forte e consistência em momento indeterminado é a consistência na linha do
-tempo, usada no PNUTS do Yahoo \cite{Cooper2008,Abadi2010}. Ela é uma opção
+tempo, usada no PNUTS do Yahoo \cite{Cooper2008,Abadi2012}. Ela é uma opção
 interessante por simplificar a programação, desde que seu desempenho seja
 próximo ao da consistência em momento indeterminado e a aplicação tolere níveis
 mais baixos de disponibilidade.
@@ -792,7 +800,7 @@ consistência mais rígida apresentam pior desempenho. Renesse e Schneider
 apresentam resultados experimentais comparando desempenho e disponibilidade de
 replicação mestre-escravo e replicação em cadeia, cada uma delas usando
 consistência forte e consistência em momento indeterminado
-\cite{VanRenesse2004}. Nenhum desses dois experimentos leva em consideração
+\cite{vanRenesse2004}. Nenhum desses dois experimentos leva em consideração
 operação sobre WAN nem diferentes cargas de trabalho.
 
 Uma publicação com uma proposta mais próxima da deste trabalho é a comparação
@@ -834,10 +842,6 @@ plataforma para experimentos Grid'5000, desenvolvida pela ação de
 desenvolvimento ALADDIN INRIA com o apoio do CNRS, RENATER e várias
 universidades, bem como outros organismos de financiamento (ver
 \url{https://www.grid5000.fr}).
-
-% \begin{table}[ht] \centering \caption{Variables to be considered on the
-% evaluation of interaction techniques} \label{tab:exTable1}
-% \includegraphics[width=.7\textwidth]{table.jpg} \end{table}
 
 \section{Referências} \bibliographystyle{sbc} \bibliography{bibliografia}
 

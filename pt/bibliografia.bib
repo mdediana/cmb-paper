@@ -1,187 +1,277 @@
-@misc{Abadi2010,
-author = {Abadi, Daniel J.},
-title = {{Problems with CAP, and Yahoo's little known NoSQL system}},
-howpublished = {\url{http://dbmsmusings.blogspot.com/2010/04/problems-with-cap-and-yahoos-little.html}},
-note = "[\'Ultimo Acesso em 01/02/2013.]",
-year = {2010}
-}
-@inproceedings{Atikoglu2012,
-author = {Atikoglu, Berk and Xu, Y and Frachtenberg, E},
-booktitle = {Proceedings of the 2012 ACM SIGMETRICS International Conference on Measurement and Modeling of Computer Systems},
-file = {:home/mdediana/Downloads/atikoglu12-memcached.pdf:pdf},
-isbn = {9781450310970},
-keywords = {key-value store,workload analysis,workload modeling},
-title = {{Workload analysis of a large-scale key-value store}},
-url = {http://www.ece.eng.wayne.edu/~sjiang/pubs/papers/atikoglu12-memcached.pdf http://dl.acm.org/citation.cfm?id=2254766},
-year = {2012}
-}
+@article{Abadi2012, 
+ author={Abadi, D.}, 
+ journal={Computer}, 
+ title={Consistency Tradeoffs in Modern Distributed Database System Design: CAP is Only Part of the Story}, 
+ year={2012},
+ volume={45}, 
+ number={2},
+ pages={37-42},}
+@article{Atikoglu2012,
+ author = {Atikoglu, Berk and Xu, Yuehai and Frachtenberg, Eitan and Jiang, Song
+and Paleczny, Mike},
+ title = {Workload analysis of a large-scale key-value store},
+ journal = {SIGMETRICS Perform. Eval. Rev.},
+ issue_date = {June 2012},
+ volume = {40},
+ number = {1},
+ month = jun,
+ year = {2012},
+ issn = {0163-5999},
+ pages = {53--64},
+ numpages = {12},
+ url = {http://doi.acm.org/10.1145/2318857.2254766},
+ doi = {10.1145/2318857.2254766},
+ acmid = {2254766},
+ publisher = {ACM},
+ keywords = {key-value store, memcached, workload analysis, workload modeling},
+} 
 @inproceedings{Baker2011,
-author = {Baker, Jason and Bond, Chris and Corbett, J.C. and Furman, JJ and Khorlin, Andrey and Larson, James and L\'{e}on, J.M. and Li, Yawei and Lloyd, Alexander and Yushprakh, Vadim},
-booktitle = {Conference on Innovative Data Systems Research (CIDR)},
-file = {:home/mdediana/Documents/ref/Baker et al. - 2011 - Megastore providing scalable, highly available storage for interactive services.pdf:pdf},
-keywords = {bigtable,distributed transactions,large databases,paxos},
-pages = {223--234},
-title = {{Megastore: providing scalable, highly available storage for interactive services}},
-url = {http://telecomblogs.in/wp-content/uploads/2011/02/Google-Infra-Research-Paper.pdf},
-year = {2011}
+ title = {Megastore: Providing Scalable, Highly Available Storage for Interactive
+ Services},
+ author  = {Jason Baker and Chris Bond and James C. Corbett and JJ Furman and
+ Andrey Khorlin and James Larson and Jean-Michel Leon and Yawei Li and Alexander
+ Lloyd and Vadim Yushprakh},
+ year  = 2011,
+ URL = {http://www.cidrdb.org/cidr2011/Papers/CIDR11_Paper32.pdf},
+ booktitle = {Proceedings of the Conference on Innovative Data system Research
+ (CIDR)},
+ pages = {223--234}
 }
-@article{Beyer2011,
-author = {Beyer, Felix and Koschel, Arne and Schulz, Christian and Sch\"{a}fer, Michael and Astrova, Irina and Reich, Alexander and Grivas, Stella Gatziu and Schaaf, Marc},
-file = {:home/mdediana/Documents/ref/Beyer et al. - 2011 - Testing the Suitability of Cassandra for Cloud Computing Environments Consistency, Availability and Partition Tolerance.pdf:pdf},
-isbn = {9781612081533},
-journal = {Computing},
-keywords = {availability,cassandra,cloud computing,experiments,partition tolerance},
-pages = {86--91},
-title = {{Testing the Suitability of Cassandra for Cloud Computing Environments Consistency, Availability and Partition Tolerance}},
-year = {2011}
+@inproceedings{Beyer2011,
+ title = {{Testing the Suitability of Cassandra for Cloud Computing Environments Consistency, Availability and Partition Tolerance}},
+ author = {Beyer, Felix and Koschel, Arne and Schulz, Christian and Sch\"{a}fer, Michael and Astrova, Irina and Reich, Alexander and Grivas, Stella Gatziu and Schaaf, Marc},
+ year  = {2011},
+ booktitle = {Proceedings of the 2nd International Conference on Cloud
+Computing, GRIDs, and Virtualization},
+ pages = {86-91}
 }
 @inproceedings{Calder2011,
-author = {Calder, Brad and Wang, Ju and Ogus, Aaron and Nilakantan, Niranjan and Skjolsvold, Arild and McKelvie, S. and Xu, Yikang and Srivastav, Shashwat and Wu, Jiesheng and Simitci, Huseyin and Others},
-booktitle = {Proceedings of the Twenty-Third ACM Symposium on Operating Systems Principles},
-file = {:home/mdediana/Documents/ref/Calder et al. - 2011 - Windows Azure Storage A Highly Available Cloud Storage Service with Strong Consistency.pdf:pdf},
-isbn = {9781450309776},
-keywords = {cloud storage,distributed storage systems,windows azure},
-pages = {143--157},
-publisher = {ACM},
-title = {{Windows Azure Storage: a highly available cloud storage service with strong consistency}},
-url = {http://dl.acm.org/citation.cfm?id=2043571},
-year = {2011}
-}
-@inproceedings{Cooper2008,
-author = {Cooper, Brian F. and Ramakrishnan, Raghu and Srivastava, Utkarsh and Silberstein, Adam and Bohannon, Philip and Jacobsen, Hans-arno and Puz, Nick and Weaver, Daniel and Yerneni, Ramana},
-booktitle = {Proceedings of the VLDB Endowment},
-file = {:home/mdediana/Documents/ref/Cooper et al. - 2008 - PNUTS Yahoo!'s Hosted Data Serving Platform.pdf:pdf},
-publisher = {VLDB Endowment},
-title = {{PNUTS: Yahoo!'s Hosted Data Serving Platform}},
-url = {http://portal.acm.org/citation.cfm?id=1454167},
-year = {2008}
-}
-@article{Cooper2010,
-address = {New York, New York, USA},
-annote = {Mede escalabilidade aumentando quantidade de n\'{o}s (e tamanho do dataset e request rate proporcionalmente) e mede a lat\^{e}ncia - se constante, o sistema escala bem},
-author = {Cooper, Brian and Silberstein, Adam and Tam, Erwin and Ramakrishnan, Raghu and Sears, Russell},
-doi = {10.1145/1807128.1807152},
-file = {:home/mdediana/Documents/ref/Cooper et al. - 2010 - Benchmarking cloud serving systems with YCSB.pdf:pdf},
-isbn = {9781450300360},
-journal = {ACM Symposium on Cloud Computing (SOCC 2010)},
-pages = {143},
-publisher = {ACM Press},
-title = {{Benchmarking cloud serving systems with YCSB}},
-url = {http://portal.acm.org/citation.cfm?id=1807128.1807152},
-year = {2010}
-}
+ author = {Calder, Brad and Wang, Ju and Ogus, Aaron and Nilakantan, Niranjan
+and Skjolsvold, Arild and McKelvie, Sam and Xu, Yikang and Srivastav, Shashwat
+and Wu, Jiesheng and Simitci, Huseyin and Haridas, Jaidev and Uddaraju,
+Chakravarthy and Khatri, Hemal and Edwards, Andrew and Bedekar, Vaman and
+Mainali, Shane and Abbasi, Rafay and Agarwal, Arpit and Haq, Mian Fahim ul and
+Haq, Muhammad Ikram ul and Bhardwaj, Deepali and Dayanand, Sowmya and
+Adusumilli, Anitha and McNett, Marvin and Sankaran, Sriram and Manivannan,
+Kavitha and Rigas, Leonidas},
+ title = {Windows Azure Storage: a highly available cloud storage service with
+strong consistency},
+ booktitle = {Proceedings of the Twenty-Third ACM Symposium on Operating Systems
+Principles},
+ series = {SOSP '11},
+ year = {2011},
+ isbn = {978-1-4503-0977-6},
+ location = {Cascais, Portugal},
+ pages = {143--157},
+ numpages = {15},
+ url = {http://doi.acm.org/10.1145/2043556.2043571},
+ doi = {10.1145/2043556.2043571},
+ acmid = {2043571},
+ keywords = {Windows Azure, cloud storage, distributed storage systems},
+} 
+@article{Cooper2008,
+ author = {Cooper, Brian F. and Ramakrishnan, Raghu and Srivastava, Utkarsh and
+Silberstein, Adam and Bohannon, Philip and Jacobsen, Hans-Arno and Puz, Nick and
+Weaver, Daniel and Yerneni, Ramana},
+ title = {PNUTS: Yahoo!'s hosted data serving platform},
+ journal = {Proc. VLDB Endow.},
+ issue_date = {August 2008},
+ volume = {1},
+ number = {2},
+ month = aug,
+ year = {2008},
+ issn = {2150-8097},
+ pages = {1277--1288},
+ numpages = {12},
+ url = {http://dl.acm.org/citation.cfm?id=1454159.1454167},
+ acmid = {1454167},
+ publisher = {VLDB Endowment},
+} 
+@inproceedings{Cooper2010,
+ author = {Cooper, Brian F. and Silberstein, Adam and Tam, Erwin and
+Ramakrishnan, Raghu and Sears, Russell},
+ title = {Benchmarking cloud serving systems with YCSB},
+ booktitle = {Proceedings of the 1st ACM symposium on Cloud computing},
+ series = {SoCC '10},
+ year = {2010},
+ isbn = {978-1-4503-0036-0},
+ location = {Indianapolis, Indiana, USA},
+ pages = {143--154},
+ numpages = {12},
+ url = {http://doi.acm.org/10.1145/1807128.1807152},
+ doi = {10.1145/1807128.1807152},
+ acmid = {1807152},
+ keywords = {benchmarking, cloud serving database},
+} 
 @article{DeCandia2007,
-author = {DeCandia, Giuseppe and Hastorun, Deniz and Jampani, Madan and Kakulapati, Gunavardhan and Lakshman, Avinash and Pilchin, Alex and Sivasubramanian, Swaminathan and Vosshall, Peter and Vogels, Werner},
-file = {:home/mdediana/Documents/ref/DeCandia et al. - 2007 - Dynamo Amazon's Highly Available Key-value Store.pdf:pdf},
-journal = {ACM SIGOPS Operating Systems Review},
-number = {6},
-pages = {205--220},
-publisher = {ACM},
-title = {{Dynamo: Amazon's Highly Available Key-value Store}},
-url = {http://portal.acm.org/citation.cfm?id=1294261.1294281},
-year = {2007}
-}
+ author = {DeCandia, Giuseppe and Hastorun, Deniz and Jampani, Madan and
+Kakulapati, Gunavardhan and Lakshman, Avinash and Pilchin, Alex and
+Sivasubramanian, Swaminathan and Vosshall, Peter and Vogels, Werner},
+ title = {Dynamo: Amazon's highly available key-value store},
+ journal = {SIGOPS Oper. Syst. Rev.},
+ issue_date = {December 2007},
+ volume = {41},
+ number = {6},
+ month = oct,
+ year = {2007},
+ issn = {0163-5980},
+ pages = {205--220},
+ numpages = {16},
+ url = {http://doi.acm.org/10.1145/1323293.1294281},
+ doi = {10.1145/1323293.1294281},
+ acmid = {1294281},
+ publisher = {ACM},
+ keywords = {performance, reliability, scalability},
+} 
 @misc{ESNet2012,
-pages = {2012},
 title = {{Host Tuning}},
 note = "[\'Ultimo Acesso em 01/02/2013.]",
 howpublished = {\url{http://fasterdata.es.net/host-tuning/background/}}
 }
 @inproceedings{Glendenning2011,
-author = {Glendenning, Lisa and Beschastnikh, I. and Krishnamurthy, A. and Anderson, Thomas},
-booktitle = {Proceedings of the Twenty-Third ACM Symposium on Operating Systems Principles},
-file = {:home/mdediana/Documents/ref/Glendenning et al. - 2011 - Scalable consistency in Scatter.pdf:pdf},
-keywords = {consistency,distributed systems,distributed transactions,fault tolerance,paxos,scalability,storage},
-pages = {15--28},
-publisher = {ACM},
-title = {{Scalable consistency in Scatter}},
-url = {http://dl.acm.org/citation.cfm?id=2043559},
-year = {2011}
-}
+ author = {Glendenning, Lisa and Beschastnikh, Ivan and Krishnamurthy, Arvind
+and Anderson, Thomas},
+ title = {Scalable consistency in Scatter},
+ booktitle = {Proceedings of the Twenty-Third ACM Symposium on Operating Systems
+Principles},
+ series = {SOSP '11},
+ year = {2011},
+ isbn = {978-1-4503-0977-6},
+ location = {Cascais, Portugal},
+ pages = {15--28},
+ numpages = {14},
+ url = {http://doi.acm.org/10.1145/2043556.2043559},
+ doi = {10.1145/2043556.2043559},
+ acmid = {2043559},
+ keywords = {Paxos, consistency, distributed systems, distributed transactions,
+fault tolerance, scalability, storage},
+} 
 @book{Jain1991,
-author = {Jain, Raj},
-publisher = {Wiley Computer Publishing, John Wiley \& Sons, Inc.},
-title = {{The Art of Computer Systems Performance Analysis: Techniques for Experimental Design, Measurements, Simulation, and Modeling}},
-year = {1991}
+ title={The Art Of Computer Systems Performance Analysis},
+ author={Jain, Raj},
+ isbn={9788126519057},
+ url={http://books.google.com.br/books?id=eOR0kJjgMqkC},
+ year={2008},
+ publisher={Wiley}
 }
-@inproceedings{Kadambi2011,
-author = {Kadambi, Sudarshan and Chen, Jianjun and Cooper, Brian and Lomax, David},
-booktitle = {Proceedings of the VLDB Endowment},
-file = {:home/mdediana/Documents/ref/Kadambi et al. - 2011 - Where in the World is My Data.pdf:pdf},
-pages = {1040--1050},
-title = {{Where in the World is My Data?}},
-url = {http://www.cs.unibo.it/~montesi/CBD/Letture/WhereIsMyData.pdf},
-year = {2011}
+@article{Kadambi2011,
+ author    = {Sudarshan Kadambi and
+              Jianjun Chen and
+              Brian F. Cooper and
+              David Lomax and
+              Raghu Ramakrishnan and
+              Adam Silberstein and
+              Erwin Tam and
+              Hector Garcia-Molina},
+ title     = {Where in the World is My Data?},
+ journal   = {Proceedings of the VLDB Endowment (PVLDB)},
+ volume    = {4},
+ number    = {11},
+ year      = {2011},
+ pages     = {1040-1050},
+ ee        = {http://www.vldb.org/pvldb/vol4/p1040-kadambi.pdf},
+ bibsource = {DBLP, http://dblp.uni-trier.de}
 }
 @article{Lakshman2010,
-author = {Lakshman, Avinash and Malik, Prashant},
-file = {:home/mdediana/Documents/ref/Lakshman, Malik - 2010 - Cassandra a decentralized structured storage system.pdf:pdf},
-issn = {0163-5980},
-journal = {ACM SIGOPS Operating Systems Review},
-number = {2},
-pages = {35--40},
-publisher = {ACM},
-title = {{Cassandra: a decentralized structured storage system}},
-url = {http://portal.acm.org/citation.cfm?id=1773922},
-volume = {44},
-year = {2010}
-}
-@article{Lloyd2011,
-author = {Lloyd, Wyatt and Freedman, M.J. and Kaminsky, Michael and Andersen, D.G.},
-isbn = {9781450309776},
-journal = {Lloydia (Cincinnati)},
-keywords = {causal,consistency,key-value storage,scalable wide-area replica-},
-pages = {1--16},
-title = {{Don't Settle for Eventual: Scalable Causal Consistency for Wide-Area Storage with COPS}},
-url = {http://www-cgi.cs.cmu.edu/~dga/papers/cops-sosp2011.pdf},
-year = {2011}
-}
+ author = {Lakshman, Avinash and Malik, Prashant},
+ title = {Cassandra: a decentralized structured storage system},
+ journal = {SIGOPS Oper. Syst. Rev.},
+ issue_date = {April 2010},
+ volume = {44},
+ number = {2},
+ month = apr,
+ year = {2010},
+ issn = {0163-5980},
+ pages = {35--40},
+ numpages = {6},
+ url = {http://doi.acm.org/10.1145/1773912.1773922},
+ doi = {10.1145/1773912.1773922},
+ acmid = {1773922},
+ publisher = {ACM},
+} 
+@inproceedings{Lloyd2011,
+ author = {Lloyd, Wyatt and Freedman, Michael J. and Kaminsky, Michael and
+Andersen, David G.},
+ title = {Don't settle for eventual: scalable causal consistency for wide-area
+storage with COPS},
+ booktitle = {Proceedings of the Twenty-Third ACM Symposium on Operating Systems
+Principles},
+ series = {SOSP '11},
+ year = {2011},
+ isbn = {978-1-4503-0977-6},
+ location = {Cascais, Portugal},
+ pages = {401--416},
+ numpages = {16},
+ url = {http://doi.acm.org/10.1145/2043556.2043593},
+ doi = {10.1145/2043556.2043593},
+ acmid = {2043593},
+ keywords = {ALPS systems, causal + consistency, key-value storage, read
+transactions, scalable wide-area replication},
+} 
 @misc{Pinger2013,
-title = {{PingER (Ping End-to-end Reporting)}},
-howpublished = {\url{http://www-iepm.slac.stanford.edu/pinger/}},
-note = "[\'Ultimo Acesso em 01/02/2013.]",
-year = {2013}
+ author = {Pinger},
+ title = {{PingER (Ping End-to-end Reporting)}},
+ howpublished = {\url{http://www-iepm.slac.stanford.edu/pinger/}},
+ note = "[\'Ultimo Acesso em 01/02/2013.]",
+ year = {2013}
 }
 @misc{Pujol2012,
-author = {Pujol, Josep M.},
-title = {{Having fun with Redis Replication between Amazon and Rackspace}},
-howpublished = {\url{http://3scale.github.com/2012/07/25/fun-with-redis-replication/}},
-note = "[\'Ultimo Acesso em 01/02/2013.]",
-year = {2012}
+ author = {Pujol, Josep M.},
+ title = {{Having fun with Redis Replication between Amazon and Rackspace}},
+ howpublished = {\url{http://3scale.github.com/2012/07/25/fun-with-redis-replication/}},
+ note = "[\'Ultimo Acesso em 01/02/2013.]",
+ year = {2012}
 }
 @misc{Riak,
-title = {{Riak}},
-note = "[\'Ultimo Acesso em 01/02/2013.]",
-howpublished = {\url{http://wiki.basho.com/Riak.html}}
+ title = {{Riak}},
+ note = "[\'Ultimo Acesso em 01/02/2013.]",
+ howpublished = {\url{http://wiki.basho.com/Riak.html}}
 }
 @inproceedings{Sovran2011,
-author = {Sovran, Yair and Power, R. and Aguilera, M.K. and Li, J.},
-booktitle = {Proceedings of the Twenty-Third ACM Symposium on Operating Systems Principles},
-file = {:home/mdediana/Documents/ref/Sovran et al. - 2011 - Transactional storage for geo-replicated systems.pdf:pdf},
-keywords = {asynchronous replication,dis-,geo-distributed systems,key-value store,parallel snapshot isolation,transactions,tributed storage},
-pages = {385--400},
-title = {{Transactional storage for geo-replicated systems}},
-url = {http://dl.acm.org/citation.cfm?id=2043592},
-year = {2011}
-}
-@inproceedings{VanRenesse2004,
-author = {van Renesse, R. and Schneider, F.B.},
-booktitle = {Proceedings of the 6th conference on Symposium on Opearting Systems Design \& Implementation-Volume 6},
-pages = {7},
-publisher = {USENIX Association},
-title = {{Chain replication for supporting high throughput and availability}},
-url = {http://portal.acm.org/citation.cfm?id=1251254.1251261},
-year = {2004}
-}
+ author = {Sovran, Yair and Power, Russell and Aguilera, Marcos K. and Li,
+Jinyang},
+ title = {Transactional storage for geo-replicated systems},
+ booktitle = {Proceedings of the Twenty-Third ACM Symposium on Operating Systems
+Principles},
+ series = {SOSP '11},
+ year = {2011},
+ isbn = {978-1-4503-0977-6},
+ location = {Cascais, Portugal},
+ pages = {385--400},
+ numpages = {16},
+ url = {http://doi.acm.org/10.1145/2043556.2043592},
+ doi = {10.1145/2043556.2043592},
+ acmid = {2043592},
+ keywords = {asynchronous replication, distributed storage, geo-distributed
+systems, key-value store, parallel snapshot isolation, transactions},
+} 
+@inproceedings{vanRenesse2004,
+ author = {van Renesse, Robbert and Schneider, Fred B.},
+ title = {Chain replication for supporting high throughput and availability},
+ booktitle = {Proceedings of the 6th conference on Symposium on Opearting
+Systems Design \& Implementation - Volume 6},
+ series = {OSDI'04},
+ year = {2004},
+ location = {San Francisco, CA},
+ pages = {7--7},
+ numpages = {1},
+ url = {http://dl.acm.org/citation.cfm?id=1251254.1251261},
+ acmid = {1251261},
+} 
 @article{Vogels2009,
-author = {Vogels, Werner},
-doi = {10.1145/1435417.1435432},
-issn = {00010782},
-journal = {Communications of the ACM},
-number = {1},
-pages = {40--44},
-title = {{Eventually Consistent}},
-url = {http://portal.acm.org/citation.cfm?doid=1435417.1435432},
-volume = {52},
-year = {2009}
-}
+ author = {Vogels, Werner},
+ title = {Eventually consistent},
+ journal = {Commun. ACM},
+ issue_date = {January 2009},
+ volume = {52},
+ number = {1},
+ month = jan,
+ year = {2009},
+ issn = {0001-0782},
+ pages = {40--44},
+ numpages = {5},
+ url = {http://doi.acm.org/10.1145/1435417.1435432},
+ doi = {10.1145/1435417.1435432},
+ acmid = {1435432},
+ publisher = {ACM},
+} 
