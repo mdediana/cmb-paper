@@ -12,7 +12,8 @@
      
 \sloppy
 
-\hyphenation{re-la-xa-do re-pre-sen-ta Facebook}
+\hyphenation{re-la-xa-do re-pre-sen-ta Facebook Yahoo re-qui-si-tos
+ex-pe-ri-men-tal}
 
 \title{Desempenho de Sistemas com Dados Georeplicados\\ com Consistência em
 Momento Indeterminado e\\ na Linha do Tempo}
@@ -28,14 +29,14 @@ Momento Indeterminado e\\ na Linha do Tempo}
 
 \begin{abstract}
 
-Large-scale web systems replicate data among data centers to
-achieve high levels of performance and availability. A consistency model defines
-the tradeoffs between these requirements and replica consistency. This work
-compared experimentally the performace of a storage system using eventual
-consistency and timeline consistency. The results show that, depending on
-the workload and the network conditions, system performances for each
-consistency model are similar. This comparative is helpful for development cost
-estimates and capacity planning of large-scale web systems.
+Large-scale web systems replicate data among data centers to achieve high levels
+of performance and availability. A consistency model defines the tradeoffs
+between these requirements and replica consistency. This work compared
+experimentally the performace of a storage system using eventual consistency and
+timeline consistency. The results show that, depending on the workload and the
+network conditions, system performances for each consistency model are similar.
+This comparative is helpful for development cost estimates and capacity planning
+of large-scale web systems.
 
 \end{abstract}
      
@@ -60,7 +61,7 @@ Para atender centenas de milhares de usuários ininterruptamente em sistemas web
 de larga escala, dados são replicados em milhares de servidores distribuídos em
 múltiplos centros de processamento de dados em diferentes localizações
 geográficas. O principal problema do uso de replicação em redes de longa
-distância (WAN) é que manter as réplicas sempre consistentes entre si
+distância (WANs) é que manter as réplicas sempre consistentes entre si
 tipicamente implica em sacrificar outros requisitos também importantes, como
 desempenho ou disponibilidade. Um motivo para divergência entre réplicas é que a
 replicação entre centros de processamento de dados pode apresentar centenas de
@@ -72,34 +73,30 @@ receber atualizações por um período de tempo. Um terceiro motivo é o
 particionamento de rede, causado por exemplo por uma falha em um equipamento ou
 enlace de rede que impeça a comunicação entre réplicas.
 
-Com isso, desenvolvedores e administradores de sistemas web de larga escala
+Nesse cenário, desenvolvedores e administradores de sistemas web de larga escala
 buscam um balanço entre disponibilidade, desempenho e consistência dos dados.
 Uma decisão comum em vários desses sistemas é o relaxamento da consistência em
-troca de alta disponibilidade e baixa latência. Por outro lado, modelos de
-consistência mais relaxados permitem que conflitos entre réplicas aconteçam.
-Com isso, o código da aplicação fica mais complexo pois mecanismos de resolução
-de conflitos e ações de compensação precisam ser implementados.
+troca de alta disponibilidade e baixa latência. Entretanto, modelos de
+consistência mais relaxados permitem que conflitos entre réplicas aconteçam, o
+que torna o código da aplicação mais complexo devido a necessidade de
+implementação de mecanismos de resolução de conflitos e ações de compensação.
 
 Este trabalho é um comparativo de desempenho de um sistema de armazenamento
 georeplicado usando dois modelos de consistência diferentes. Um deles, a
-consistência em momento indeterminado (\emph{eventual consistency}\footnote{O
-termo \emph{eventual consistency} às vezes é erroneamente traduzido para o
-português como consistência eventual. Mas \emph{eventual} é um falso cognato, já
-que em inglês ele indica que algo certamente acontecerá no futuro, mas em
+consistência em momento indeterminado (\textit{eventual consistency}\footnote{O
+termo \textit{eventual consistency} às vezes é erroneamente traduzido para o
+português como consistência eventual. Mas \textit{eventual} é um falso cognato,
+já que em inglês ele indica que algo certamente acontecerá no futuro, mas em
 português significa que algo pode ou não acontecer no futuro. Daí a opção de
-traduzir \emph{eventual} por ``em momento indeterminado''.}) é um modelo mais
+traduzir \textit{eventual} por ``em momento indeterminado''.}) é um modelo mais
 relaxado e se tornou especialmente popular após a publicação sobre o Dynamo da
-Amazon \cite{DeCandia2007,Lakshman2010,Riak}. Um modelo de consistência para
-sistemas georeplicados menos popular, que busca um meio termo entre consistência
-forte e consistência em momento indeterminado é a consistência na linha do
-tempo, usada no PNUTS do Yahoo \cite{Cooper2008,Abadi2012}. Ela é uma opção
-interessante por simplificar a programação, desde que seu desempenho seja
-próximo ao da consistência em momento indeterminado e a aplicação tolere níveis
-mais baixos de disponibilidade.
-
-A Seção~\ref{sec:consistencia_em_momento_indeterminado_e_na_linha_do_tempo}
-apresenta detalhes dos modelos de consistência usados no estudo e as situações
-que favorecem o uso de cada um deles.
+Amazon \cite{DeCandia2007}. Um modelo de consistência para sistemas
+georeplicados menos popular, que busca um meio termo entre consistência forte e
+consistência em momento indeterminado é a consistência na linha do tempo, usada
+no PNUTS do Yahoo! \cite{Cooper2008}. Ela é uma opção interessante por
+simplificar a programação, desde que seu desempenho seja próximo ao da
+consistência em momento indeterminado e a aplicação tolere níveis mais baixos de
+disponibilidade.
 
 %% ------------------------------------------------------------------------- %%
 \section{Consistência em Momento Indeterminado e na Linha do Tempo}
@@ -108,16 +105,17 @@ que favorecem o uso de cada um deles.
 A consistência em momento indeterminado garante que as réplicas vão sempre
 convergir em algum momento no futuro desde que novas atualizações cessem.
 Enquanto atualizações estiverem acontecendo, réplicas inconsistentes são
-possíveis, e clientes podem acessar dados desatualizados ou divergentes - por
+possíveis, e clientes podem acessar dados desatualizados ou divergentes -- por
 isso o sistema precisa implementar algoritmos de detecção e resolução de
 conflitos. Uma forma de diminuir as chances de conflitos é o uso de quóruns,
 cujo contraponto é a diminuição da disponibilidade do sistema quando um
 determinado quórum não é atingido \cite{Vogels2009}. Costuma-se usar os
 parâmetros N, R e W para definir os quóruns. N é o fator de replicação e
-representa a quantidade de réplicas existentes de um objeto. R é a quantidade de
-réplicas que precisam concordar com o mesmo valor para que uma leitura seja bem
-sucedida e W possui o mesmo significado, mas para escritas. Quando $N < R + W$,
-não existe possibilidade de clientes lerem dados inconsistentes.
+representa a quantidade de réplicas existentes de um objeto. R/W é a quantidade
+de réplicas que precisam concordar com o mesmo valor para que uma
+leitura/escrita seja bem sucedida. Quando $N < R + W$, não existe possibilidade
+de clientes lerem dados inconsistentes, dado que existe intersecção entre os
+subconjuntos de réplicas para leitura e escrita.
 
 Algumas aplicações web tornam-se mais simples com um modelo de consistência mais
 rígido. Por exemplo, uma aplicação de leilão não pode permitir conflitos no
@@ -127,7 +125,7 @@ usuários em cada partição têm uma visão própria do histórico de lances,
 equivalente a dois leilões simultâneos sobre o mesmo item.
 
 A consistência na linha do tempo abre mão de disponibilidade em algumas
-situações em troca de consistência \cite{Cooper2008}.  Para cada objeto
+situações em troca de consistência \cite{Cooper2008}. Para cada objeto
 armazenado, ela permite atualizações em apenas uma de suas réplicas (réplica
 mestre). Devido à replicação assíncrona, réplicas podem ter valores
 desatualizados devido à latência de rede ou falhas, mas a qualquer instante
@@ -144,7 +142,7 @@ réplica.
 O maior fator de impacto no desempenho da consistência na linha do tempo é o
 fato de que operações consistentes que não são feitas no centro de processamento
 de dados em que está a réplica mestre incorrem no custo de comunicação pela WAN.
-Mas os autores do PNUTS indicam que algumas aplicações no Yahoo apresentam
+Mas os autores do PNUTS indicam que algumas aplicações no Yahoo! apresentam
 localidade de até 85\% e relação escrita/leitura de 0,06
 \cite{Kadambi2011,Cooper2008}. Dado isso, eles implementaram uma heurística em
 que a réplica mestre migra para o centro de processamento de dados que recebeu
@@ -157,69 +155,76 @@ valor mais recente.
 \section{Planejamento dos Experimentos}
 \label{sec:planejamento_dos_experimentos}
 
+Para entender o desempenho resultante de cada modelo de consistência, um estudo
+experimental foi realizado. Seu planejamento e execução usaram \cite{Jain1991}
+como principal referência metodológica.
+
 Três técnicas são comumente usadas na análise de desempenho de sistemas:
-simulação, modelagem analítica e medição \cite{Jain1991}. Dada a grande
-quantidade de parâmetros considerados, seria difícil evitar o impacto na
-precisão de simplificações necessárias para a criação de simuladores ou modelos,
-portanto medição foi escolhida.
+simulação, modelagem analítica e medição \cite{Jain1991}. Como inicialmente 33
+parâmetros foram considerados (ver seções seguintes), seria difícil evitar a
+perda de precisão decorrente de simplificações necessárias para a criação de
+simuladores ou modelos com tantos parâmetros. Portanto, medição foi a técnica
+escolhida.
 
-Foi necessário escolher um sistema como objeto do estudo. Como não foram
-encontradas soluções de software livre com consistência na linha do tempo, a
-opção foi implementá-la em um sistema com consistência em momento indeterminado,
-no caso, o Riak. Além do novo modelo de consistência, também foi implementado um
-algoritmo de particionamento que garante que existe ao menos uma réplica em cada
-centro de processamento de dados.
-
-Como \emph{benchmark}, foi usado o Basho Bench, específico para Riak. Ele foi
-adaptado para executar instâncias em nós diferentes, uma para cada centro de
+Um sistema precisava ser escolhido como objeto do estudo. Como nenhum sistema
+com os dois modelos de consistência foi encontrado, optou-se por implementar a
+consistência na linha do tempo no
+Riak\footnote{\url{http://wiki.basho.com/Riak.html}}, sistema de software livre
+que já traz consistência em momento indeterminado. Além do novo modelo de
+consistência, também foi implementado um algoritmo de particionamento que
+garante que existe ao menos uma réplica de cada objeto em cada centro de
 processamento de dados.
+
+Como \textit{benchmark}, foi usado o Basho
+Bench\footnote{\url{http://docs.basho.com/riak/latest/cookbooks/Benchmarking/}},
+específico para Riak. Ele foi adaptado para executar de forma distribuída, com
+uma instância para cada centro de processamento de dados.
 
 Os experimentos emularam uma WAN pelo uso do
 netem\footnote{\url{http://www.linuxfoundation.org/collaborate/workgroups/networking/netem}},
 controlado pelo traffic control (tc). Ele provê funcionalidade para emulação de
-características de rede como latência de rede e perda de pacotes. As
-configurações de rede foram alteradas nos experimentos de acordo com
-recomendações sobre otimizações de sistemas Linux para quando esses se comunicam
-por WANs \cite{ESNet2012}. Um exemplo de otimização é usar o dobro do BDP como
-tamanho dos buffers de transmissão e recepção.
+características de rede como latência e perda de pacotes. As configurações de
+rede foram alteradas nos experimentos de acordo com recomendações sobre
+otimizações de sistemas Linux para quando esses se comunicam por WANs
+\cite{ESNet2012}, como usar o dobro do Produto Banda-Atraso (BDP) como tamanho
+dos buffers de transmissão e recepção, por exemplo.
 
 Os experimentos foram executados no
 Grid'5000\footnote{\url{http://www.grid5000.fr/}}, uma plataforma para criação,
 execução e monitoramento de experimentos de sistemas paralelos e distribuídos.
 
-O trabalho usou experimentos fatoriais, que consistem da combinação de dois ou
-mais fatores em cada experimento que compõe o estudo \cite{Jain1991}. Quanto
-maior a quantidade de fatores e níveis em um estudo, mais recursos são
-necessários para sua execução. Por outro lado, alguns poucos fatores costumam
-explicar a maior parte dos efeitos na resposta. Por isso, uma seleção de fatores
-foi realizada pelo uso de experimentos 2\textsuperscript{k} com o objetivo de
-identificar quais deles eram os mais influentes. Esse tipo de experimento é
-realizado com apenas 2 níveis para cada fator, com um total de
+O trabalho usou experimentos fatoriais, que consistem da combinação de fatores
+em cada experimento que compõe o estudo \cite{Jain1991}. Quanto maior a
+quantidade de fatores e níveis em um estudo, mais recursos são necessários para
+sua execução. Por outro lado, alguns poucos fatores costumam explicar a maior
+parte dos efeitos na resposta. Por isso, uma seleção dos fatores mais influentes
+foi realizada pelo uso de experimentos 2\textsuperscript{k}. Esse tipo de
+experimento é realizado com apenas 2 níveis para cada fator, com um total de
 2\textsuperscript{k} experimentos, onde k é a quantidade de fatores.
 
-A seção seguinte mostra quais foram os parâmetros inicialmente fixados.
-
 %% ------------------------------------------------------------------------- %%
-\section{Parâmetros Fixados}
+\section{Parâmetros Fixados} \label{sec:parametros_fixados}
 
-Foram levantados 33 parâmetros, dos quais 16 foram fixados por limitação de
-recursos ou por não serem foco do estudo. Esses parâmetros e seus respectivos
-valores são:
+Após definido o tipo de estudo experimental, foram levantados 33 parâmetros, dos
+quais 16 foram fixados por limitação de recursos ou por não serem foco do
+estudo. Vale notar que os parâmetros de LAN referem-se aos disponíveis no
+aglomerado, enquanto do de WAN foram emulados. Os parâmetros fixados e seus
+respectivos valores foram:
 
 \begin{itemize}
 
-\item \textbf{Aglomerado:} Os experimentos usaram o aglomerado \emph{sol} no
+\item \textbf{Aglomerado:} Os experimentos usaram o aglomerado \textit{sol} no
 Grid'5000. Os nós desse aglomerado possuem CPU AMD Opteron 2218 2.6 GHz, 4 GB de
 memória e placa de rede de 1 Gb/s.
 
 \item \textbf{Mecanismo de armazenamento:} Ao usar memória como mecanismo de
 armazenamento evitou-se ter que considerar os efeitos de disco, cache de disco e
-sua interação com a quantidade de memória disponível, portanto os únicos efeitos
-de E/S observados foram devidos à rede.
+a interação entre cache de disco e quantidade de memória, portanto os únicos
+efeitos de E/S observados foram devidos à rede.
 
 \item \textbf{Capacidade dos centros de processamento de dados:} Os centros de
-processamento de dados tinham a mesma capacidade, com a mesma quantidade de nós
-e os nós têm a mesma configuração de hardware.
+processamento de dados tinham a mesma capacidade -- mesma quantidade de nós por
+centro e nós com a mesma configuração de hardware.
 
 \item \textbf{Algoritmo de particionamento das chaves:} O algoritmo padrão do
 Riak foi usado (espalhamento consistente).
@@ -228,8 +233,8 @@ Riak foi usado (espalhamento consistente).
 razoável entre desempenho, disponibilidade e durabilidade em aplicações reais
 \cite{DeCandia2007}.
 
-\item \textbf{Limiar de migração (para consistência na linha do tempo):} 3, que
-é o valor padrão do PNUTS \cite{Cooper2008}.
+\item \textbf{Limiar de migração (para consistência na linha do tempo):} 3 é o
+valor padrão do PNUTS \cite{Cooper2008}.
 
 \item \textbf{Interface de acesso:} HTTP, por simplicidade de uso.
 
@@ -243,15 +248,15 @@ de banda.
 
 \item \textbf{Topologia da rede:} Estrela, que era a topologia do aglomerado.
 
-\item \textbf{Largura de banda da LAN:} 1 Gb/s, a largura de banda das placas de
-rede dos nós do aglomerado.
+\item \textbf{Largura de banda da LAN:} 1 Gb/s era a largura de banda das placas
+de rede dos nós do aglomerado.
 
 \item \textbf{Latência da LAN:} 167 $\mu$s, latência do aglomerado, medida com
 ping com 60 amostras espaçadas em 5 s.
 % ping -i 5 -c 60 sol-20
 
-\item \textbf{Variação de latência da LAN:} 90 $\mu$s, variação de latência do
-aglomerado, medida como acima.
+\item \textbf{\textit{Jitter} da LAN:} 90 $\mu$s, \textit{jitter} do aglomerado
+medido como a latência.
 
 \item \textbf{Largura de banda da WAN:} 100 Mb/s, baseado em estudo informal
 citando que essa largura de banda é comumente observada entre zonas de
@@ -261,12 +266,11 @@ disponibilidade do AWS \cite{Pujol2012}.
 processamento de dados usados nos experimentos.
 
 \item \textbf{Taxa de chegada de requisições:} 15 operações/s para cada thread
-de cada instância do \emph{benchmark}.
+de cada instância do \textit{benchmark}.
 
 \end{itemize}
 
-Com isso, ainda restavam 17 candidatos a fatores. Desses, três constituíam o
-modo.
+Com isso, ainda restavam 17 candidatos a fatores. Desses, 3 constituíam o modo.
 
 %% ------------------------------------------------------------------------- %%
 \section{Fator Modo} \label{sec:modo}
@@ -281,30 +285,30 @@ como um único fator chamado modo. Os modos adotados foram:
 
 \begin{itemize}
 
-\item \emph{ind1}: Consistência em momento indeterminado com $W$ = 1 e $R$ = 1
+\item \textit{ind1}: Consistência em momento indeterminado com $W$ = 1 e $R$ = 1
 
-\item \emph{ind2}: Consistência em momento indeterminado com $W$ = 2 e $R$ = 1
+\item \textit{ind2}: Consistência em momento indeterminado com $W$ = 2 e $R$ = 1
 
-\item \emph{lt\_qqer}: Consistência na linha do tempo com leituras de qualquer
+\item \textit{lt\_qqer}: Consistência na linha do tempo com leituras de qualquer
 versão
 
-\item \emph{lt\_rec}: Consistência na linha do tempo com leituras da versão mais
-recente
+\item \textit{lt\_rec}: Consistência na linha do tempo com leituras da versão
+mais recente
 
 \end{itemize}
 
-Considerando que o fator de replicação foi fixado como 3 e havia ao menos uma
+Considerando que o fator de replicação foi fixado em 3 e havia ao menos uma
 réplica em cada centro de processamento de dados, duas situações eram possíveis
-com relação à localização das réplicas: uma local e duas remotas ou vice-versa.
-Dado isso, o modo \emph{ind1} resultava em leituras e escritas locais. O modo
-\emph{ind2} resultava em leituras locais e metade das escritas local e a outra
-metade remota. O modo \emph{lt\_qqer} resultava em leituras locais e a
-quantidade de escritas dependente da localidade dos acessos. Finalmente, o modo
-\emph{lt\_rec} resultava tanto em leituras quanto escritas dependentes da
-localidade.
+com relação à localização das réplicas de um objeto: uma local e duas remotas ou
+vice-versa.  Dado isso, o modo \textit{ind1} resultava em leituras e escritas
+locais. O modo \textit{ind2} resultava em leituras locais e metade das escritas
+local e a outra metade remota. O modo \textit{lt\_qqer} resultava em leituras
+locais e a quantidade de escritas dependente da localidade dos acessos.
+Finalmente, o modo \textit{lt\_rec} resultava tanto em leituras quanto escritas
+dependentes da localidade.
 
 Esses modos implicam em trocas além de desempenho e consistência. A principal é
-durabilidade, que para \emph{ind2} é mais alta do que para os outros casos, em
+durabilidade, que para \textit{ind2} é mais alta do que para os outros casos, em
 que a confirmação de escrita de uma única réplica é suficiente.
 
 Ainda restavam 14 candidatos a fatores, quantidade grande para o estudo final.
@@ -319,22 +323,17 @@ fatores em um único projeto de experimentos 2\textsuperscript{k}. O problema é
 que mesmo com apenas dois níveis por fator, a quantidade final de experimentos
 seria proibitiva.
 
-A opção adotada então foi dividi-los em grupos menores e realizar experimentos
-para cada grupo. O problema dessa separação é o fato de se perder a comparação
-da influência de fatores de grupos diferentes. Por exemplo, localidade e
-quantidade de nós de sistema foram tratados em estudos diferentes e cada um
-apareceu como o fator mais influente do estudo de que fez parte. Como eles não
-fizeram parte do mesmo estudo, a informação de qual deles é o mais influente foi
-perdida, bem como a informação sobre a influência da interação entre eles. Se um
-fosse muito mais influente do que o outro e a interação entre eles fosse baixa,
-a decisão de fixar o menos influente não teria consequências. Mas sem essa
-informação, fixar um deles representava ameaça à validade do estudo.
+A opção adotada então foi dividi-los em grupos menores de fatores relacionados e
+realizar estudos para cada grupo. Com isso, perdeu-se a comparação entre fatores
+de grupos diferentes e suas interações. Mas como a maioria dos fatores se
+mostrou pouco influente em seus grupos, como se vê nas subseções a seguir, essa
+abordagem não apresentou ameaça à validade.
 
-A maioria desses fatores era suscetível a interações com fatores de rede, como o
-tamanho dos objetos armazenados, por exemplo. A latência de rede em particular
-havia se mostrado muito influente em estudos exploratórios, fato confirmado
-posteriormente pelo estudo para fatores de rede. Dado isso, a abordagem adotada
-foi usar a latência como um representante da rede quando necessário.
+A maioria dos fatores era suscetível a interações com fatores de rede. A
+latência da WAN em particular havia se mostrado muito influente em estudos
+exploratórios, fato confirmado posteriormente pelo estudo para fatores de rede.
+Dado isso, a abordagem adotada foi usar latência como representante da WAN
+quando necessário.
 
 Existiram casos onde as respostas de todos os experimentos de um estudo eram
 semelhantes, independentemente dos níveis. Para tratar esses casos, também foram
@@ -345,44 +344,47 @@ respostas para estimar qual a influência daquele conjunto de fatores e
 interações como um todo. Assim, um CV baixo indicava que nenhum dos fatores em
 questão eram influentes.
 
-Foi necessária uma etapa de aquecimento do sistema após a carga dos dados. Como
-localidade era um fator, apenas a inserção de objetos na etapa de carga não era
-suficiente para que o sistema operasse no seu estado estacionário durante os
-experimentos para a consistência na linha do tempo. Isso porque, ao final da
-carga, cada objeto no banco de dados tinha recebido apenas um acesso de cada
-centro de processamento de dados, nenhuma réplica mestre teria migrado por
-efeito da localidade até esse momento.
+Para a consistência na linha do tempo, apenas a inserção de objetos na etapa de
+carga não era suficiente para que o sistema operasse no seu estado estacionário
+durante os experimentos. Isso porque, ao final da carga, cada objeto no banco de
+dados tinha recebido apenas um acesso de cada centro de processamento de dados,
+nenhuma réplica mestre teria migrado por efeito da localidade até esse momento.
+Por isso, foi necessária uma etapa de aquecimento do sistema após a carga dos
+dados antes de cada experimento de acordo com a localidade do experimento.
 
 Foram realizados 4 estudos intermediários, descritos nas subseções seguintes.
 Sempre que modo e localidade precisaram ser fixados, eles o foram
-respectivamente em \emph{lt\_rec} e 50\%, valores que resultam em uma quantidade
-balanceada de leituras e escritas locais e remotas. A latência, quando
-necessária, foi fixada em 100 ms. Nos resultados, os percentis 10 e 90
-representam respectivamente requisições locais e remotas. 
+respectivamente em \textit{lt\_rec} e 50\%, valores que resultam em uma
+quantidade balanceada de leituras e escritas locais e remotas. A latência,
+quando necessária, foi fixada em 100 ms. Nos resultados, os percentis 10 e 90
+representam respectivamente requisições locais e remotas.
 
 %% ------------------------------------------------------------------------- %%
-\subsection{Fatores de tamanho do sistema e \emph{benchmark}}
+\subsection{Fatores de tamanho do sistema e \textit{benchmark}}
 \label{sec:fatores_de_tamanho_do_sistema_e_benchmark}
 
-As quantidades de nós de sistema e de instâncias do \emph{benchmark} não só
+As quantidades de nós de sistema e de instâncias do \textit{benchmark} não só
 influenciavam as respostas, como também afetavam questões operacionais ligadas a
 reserva de nós no Grid'5000. Portanto, um estudo foi feito para definir a
-influência desses fatores. Os níveis selecionados foram (entre parênteses está o
-identificador do fator na
-Tabela~\ref{tab:estudo_para_quantidade_de_nos_do_sistema}):
+influência desses fatores. Os níveis usados foram (entre parênteses está o
+identificador do fator na tabela com o resultado):
 
 \begin{itemize}
 
 \item Quantidade de nós do sistema (N): 8 e 16
 
-\item Quantidade de instâncias do \emph{benchmark} (B): 2 e 4
+\item Quantidade de instâncias do \textit{benchmark} (B): 2 e 4
 
-\item Quantidade de threads em cada instância do \emph{benchmark} (T): 32 e 64
+\item Quantidade de threads em cada instância do \textit{benchmark} (T): 32 e 64
 
 \end{itemize}
 
 O resultado do estudo está na Tabela
-\ref{tab:estudo_para_quantidade_de_nos_do_sistema}.
+\ref{tab:estudo_para_fatores_de_tamanho_do_sistema}. O tamanho do sistema teve a
+maior influência nos resultados e as quantidades de instâncias do
+\textit{benchmark} e de threads não foram desprezíveis, ainda mais ao se
+considerar as interações entre elas. Apesar disso, esses fatores foram
+desconsiderados devido ao excesso de fatores.
 
 \begin{table}[ht] \centering \begin{tabular}{|c|c|c|c|c|c|c|c|c|} \hline
 
@@ -396,22 +398,18 @@ escrita & 10 & 96 & 2 & 1 & 0 & 0 & 0 & 0 \\ \hline
 
 escrita & 90 & 65 & 15 & 13 & 3 & 3 & 0 & 0 \\ \hline
 
-\end{tabular} \caption{Estudo para tamanho do sistema.}
-\label{tab:estudo_para_quantidade_de_nos_do_sistema} \end{table}
+\end{tabular} \caption{Estudo fatores de tamanho do sistema.}
+\label{tab:estudo_para_fatores_de_tamanho_do_sistema} \end{table}
 
-O tamanho do sistema teve a maior influência nos resultados e a quantidade de
-instâncias do \emph{benchmark} e a quantidade de threads não são desprezíveis,
-ainda mais ao se considerar as interações entre elas. Apesar disso, esses
-fatores foram desconsiderados devido ao excesso de fatores. Dessa forma, os
-valores fixados foram:
+\newpage Dados os resultados, os valores fixados foram:
 
 \begin{itemize}
 
 \item Quantidade de nós do sistema: 16
 
-\item Quantidade de instâncias do \emph{benchmark}: 4
+\item Quantidade de instâncias do \textit{benchmark}: 4
 
-\item Quantidade de threads em cada instância do \emph{benchmark}: 32
+\item Quantidade de threads em cada instância do \textit{benchmark}: 32
 
 \end{itemize}
 
@@ -424,10 +422,8 @@ limitações de recursos do aglomerado.
 \subsection{Fatores de banco de dados} \label{sec:fatores_de_banco_de_dados}
 
 Um estudo foi feito para dimensionar o tamanho do banco de dados, que afetava o
-uso de memória e de banda. Os níveis selecionados foram (entre parênteses está o
-identificador do fator na
-Tabela~\ref{tab:estudo_para_quantidade_e_tamanho_dos_objetos_armazenados} e L é
-a latência):
+uso de memória e de banda nos nós. Os níveis usados foram (entre parênteses está
+o identificador do fator na tabela com o resultado):
 
 \begin{itemize}
 
@@ -438,7 +434,11 @@ a latência):
 \end{itemize}
 
 O resultado do estudo está na Tabela
-\ref{tab:estudo_para_quantidade_e_tamanho_dos_objetos_armazenados}.
+\ref{tab:estudo_para_fatores_de_banco_de_dados}. A quantidade de objetos não
+afetou o desempenho do sistema. O tamanho dos objetos não afetou o desempenho
+das requisições remotas, mas com relação às requisições locais apareceu com
+100\% de influência. Apesar disso, o CV das requisições locais indicava que sua
+influência não era tão grande -- 19\% para leituras e 16\% para escritas.
 
 \begin{table}[ht] \centering \begin{tabular}{|c|c|c|c|c|c|c|c|c|} \hline
 
@@ -452,15 +452,11 @@ escrita & 10 & 0 & 100 & 0 & 0 & 0 & 0 & 0 \\ \hline
 
 escrita & 90 & 0 & 0 & 100 & 0 & 0 & 0 & 0 \\ \hline
 
-\end{tabular} \caption{Estudo para quantidade e tamanho dos objetos
-armazenados.}
-\label{tab:estudo_para_quantidade_e_tamanho_dos_objetos_armazenados} \end{table}
+\end{tabular} \caption{Estudo para fatores de banco de dados, L é a latência.}
+\label{tab:estudo_para_fatores_de_banco_de_dados} \end{table}
 
-A quantidade de objetos não afetou o desempenho do sistema. O tamanho dos
-objetos não afetou o desempenho das requisições remotas, mas com relação às
-requisições locais apareceu com 100\% de influência. Apesar disso, o CV das
-requisições locais indicava que sua influência não era tão grande -- 19\% para
-leituras e 16\% para escritas. Assim, os valores fixados foram:
+
+Dados os resultados, os valores fixados foram:
 
 \begin{itemize}
 
@@ -481,15 +477,14 @@ que 500 bytes \cite{Atikoglu2012}.
 \subsection{Fatores de rede} \label{sec:fatores_de_rede}
 
 Dado o objetivo do trabalho, o estudo para fatores de rede era um dos mais
-importantes da etapa de seleção de fatores. Os níveis inicialmente selecionados
-foram (entre parênteses está o identificador do fator na
-Tabela~\ref{tab:estudo_para_fatores_de_rede}):
+importantes da etapa de seleção de fatores. Os níveis usados foram (entre
+parênteses está o identificador do fator na tabela com o resultado):
 
 \begin{itemize}
 
 \item Latência da WAN (L): 100 e 300 ms
 
-\item Variação da latência da WAN (V): 1 e 60\%
+\item \textit{Jitter} da WAN (V): 1 e 60\%
 
 \item Taxa de perda de pacotes na WAN (P): 0,01 e 0,3\%
 
@@ -497,40 +492,41 @@ Tabela~\ref{tab:estudo_para_fatores_de_rede}):
 
 \item Taxa de reordenação de pacotes na WAN (O): 0,05 e 5\%
 
-\item Variação de TCP (T): CUBIC e H-TCP
+\item Variante do TCP (T): CUBIC e H-TCP
 
 \end{itemize}
 
-Os níveis da latências foram baseados em um estudo que relata as latências entre
-as regões do AWS \cite{Sovran2011}. A menor latência observada foi 82 ms entre
-os centros de processamento de dados dos EUA e a maior foi 277 ms entre Irlanda
-e Singapura.
+Os níveis da latência foram baseados em um estudo que relata as latências entre
+as regiões dos Amazon Web Services \cite{Sovran2011}, no qual a menor latência
+foi 82 ms entre os centros de processamento de dados em cada costa dos EUA e a
+maior foi 277 ms entre Irlanda e Singapura.
  
+O projeto PingER\footnote{\textit{Ping End-to-end Reporting} (Relatório de Ping
+Fim-a-fim) é um projeto de monitoramento de desempenho fim-a-fim de enlaces de
+Internet: \url{http://www-iepm.slac.stanford.edu/pinger/}.} serviu de base para
+os outros fatores. Para janeiro de 2013, ele mostra uma média de latência de
+238,062 ms com desvio padrão de 142,996 ms, o que resulta em \textit{jitter} de
+60\%. Os 11 meses anteriores apresentavam valores semelhantes. A mediana da taxa
+de perda de pacotes do último ano foi 0,178\%. A média da taxa de duplicação de
+pacotes em janeiro de 2013 foi 0,006\%. Os valores usados no experimento para
+duplicação e reordenação foram maiores do que os observados pelo PingER, mas
+mesmo assim não influenciaram a resposta.
+
 Tanto H-TCP quanto CUBIC foram projetados com foco em redes com largura de banda
 e latências grandes (BDP alto) e foram escolhidos pois são citados nas
 referências sobre otimizações da pilha TCP para WANs \cite{ESNet2012}.
 
-O projeto PingER\footnote{\emph{Ping End-to-end Reporting} (Relatório de Ping
-Fim-a-fim) monitora o desempenho fim-a-fim de enlaces de Internet.} serviu de
-base para os outros fatores\cite{Pinger2013}.  Ele mostra em janeiro de 2013 uma
-média de latência de 238,062 ms com desvio padrão de 142,996, o que resulta em
-uma variação de 60\%. Os 11 meses anteriores apresentavam valores semelhantes. A
-mediana da taxa de perda de pacotes do último ano foi 0,178\%. A taxa de
-duplicação de pacotes é muito baixa, em janeiro de 2013 a média foi 0,006\% e a
-mediana foi 0\%. Os valores usados no experimento para duplicação e reordenação
-foram bem maiores do que os observados pelo PingER, mas mesmo assim não
-influenciaram a resposta (ver abaixo).
+No emulador de rede, a latência define o mínimo e o \textit{jitter} o máximo a
+que ela pode chegar. Por exemplo, ao fazer a configuração de 100 ms de latência
+e 60\% de variação, o emulador gera valores entre 100 ms e 160 ms. Os valores
+gerados obedeciam a distribuição normal dentro da faixa de latência
+especificada.
 
-No emulador de rede, a latência define o mínimo e a variação o máximo a que ela
-pode chegar. Por exemplo, ao fazer a configuração de 100 ms de latência e 60\%
-de variação, o emulador gera valores entre 100 ms e 160 ms. Os valores gerados
-obedeciam a distribuição normal dentro da faixa de latência especificada.
-
-O resultado do estudo está na Tabela \ref{tab:estudo_para_fatores_de_rede}. Com
-exceção dos fatores e da interação entre latência e variação de latência, todas
-as outras colunas apresentavam valores nulos e foram suprimidas. As respostas
-das requisições locais apresentaram CVs de 1\%, portanto as respectivas linhas
-também foram suprimidas.
+O resultado do estudo está na Tabela \ref{tab:estudo_para_fatores_de_rede}, em
+que colunas das interações entre fatores com todas as células menores que 1\%
+foram suprimidas por uma questão de espaço. As respostas das requisições locais
+apresentaram CVs de 1\%, portanto as respectivas linhas também foram suprimidas
+-- o que indica que a WAN não afeta requisições locais.
 
 \begin{table}[ht] \centering \begin{tabular}{|c|c|c|c|c|c|c|c|c|} \hline
 
@@ -542,25 +538,24 @@ escrita & 90 & 69 & 23 & 1 & 0 & 0 & 0 & 6\\ \hline
 
 \end{tabular}
 
-\caption{Estudo para fatores de rede. A soma para escritas não é 100\% devido a
-arredondamento.} \label{tab:estudo_para_fatores_de_rede}
+\caption{Estudo para fatores de rede.} \label{tab:estudo_para_fatores_de_rede}
 
 \end{table}
 
-A latência, a variação de latência e a interação de primeira ordem entre elas
-responderam por 100\% dos resultados. Assim, os níveis escolhidos para esses
-fatores nos experimentos foram:
+A latência, o \textit{jitter} e a interação de primeira ordem entre eles
+responderam pela quase totalidade dos resultados. Assim, os níveis escolhidos
+para esses fatores nos experimentos foram:
 
 \begin{itemize} \item Latência da WAN (ms): 0, 100, 200 e 300
 
-\item Variação da latência da WAN (\%): 0 e 60
+\item \textit{Jitter} da WAN (\%): 0 e 60
 
 \end{itemize}
 
-Níveis nulos de latência e variação da latência equivalem a ter todo o sistema
-operando em uma rede local. Os resultados obtidos para esses casos foram usados
-como auxílio na interpretação dos resultados, mas não foram considerados no
-estudo final.
+Níveis nulos de latência e \textit{jitter} equivalem a ter todo o sistema
+operando em uma LAN. Os resultados obtidos para esses casos foram usados como
+auxílio na interpretação dos resultados, mas não foram considerados no estudo
+final.
 
 Os valores fixados dos fatores desconsiderados foram:
 
@@ -572,7 +567,7 @@ Os valores fixados dos fatores desconsiderados foram:
 
 \item Taxa de reordenação de pacotes na WAN (\%): 0
 
-\item Algoritmo de congestionamento: CUBIC
+\item Variante do TCP: CUBIC
 
 \end{itemize}
 
@@ -581,8 +576,8 @@ Os valores fixados dos fatores desconsiderados foram:
 \label{sec:fatores_de_carga_de_trabalho}
 
 Este era um dos estudos mais importantes juntamente ao estudo para fatores de
-rede. Os níveis selecionados foram (entre parênteses está o identificador do
-fator na Tabela~\ref{tab:estudo_para_fatores_de_carga_de_trabalho}):
+rede. Os níveis usados foram (entre parênteses está o identificador do fator na
+tabela com o resultado):
 
 \begin{itemize}
 
@@ -598,12 +593,7 @@ determinado objeto vindo de um centro de processamento de dados e 10\% do outro)
 \end{itemize}
 
 Como os modos possuem comportamentos diferentes para requisições locais e
-remotas, os experimentos foram executados para cada modo. O resultado para
-requisições locais apresentaram CVs em torno de 0,02 para todos os modos. Isso
-indica que requisições locais não sofrem influência de nenhum dos fatores. Já
-requisições remotas apresentaram CVs de aproximadamente 50\% e influência da
-latência de 100\% para \emph{ind2}, \emph{lt\_qqer} e \emph{lt\_rec}
-(\emph{ind1} não tem requisições remotas).
+remotas, os experimentos foram executados para cada modo. 
 
 A análise da relação leitura/escrita e localidade não usou percentis, mas sim a
 média do tempo de resposta de todas as requisições (leituras e escritas). Isso
@@ -613,24 +603,29 @@ fatores não fazem sentido nos percentis separados por tipo de requisição. Por
 exemplo, com localidade de 50\% percebe-se que o percentil 70 representa
 requisições remotas, enquanto com localidade de 90\% o mesmo percentil
 representa requisições locais. Se a análise fosse feita por percentis, essa
-informação se perderia e localidade nunca teria influência. O resultado do
-estudo está na Tabela \ref{tab:estudo_para_fatores_de_carga_de_trabalho}
-(colunas com todas as células menores do que 5\% foram removidas).
+informação se perderia e localidade nunca teria influência.
+
+O resultado do estudo está na Tabela
+\ref{tab:estudo_para_fatores_de_carga_de_trabalho}, em que colunas com todas as
+células menores do que 5\% foram suprimidas por uma questão de espaço.  Os
+resultados para requisições locais apresentaram CVs em torno de 2\% para todos
+os modos, o que indica que nenhum dos fatores influencia requisições locais.
+
 
 \begin{table}[ht] \centering \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|} \hline
 
 Modo & R & X & P & L & RX & RL & XL & PL & XPL\\ \hline
 
-\emph{ind1} & 19 & 12 & 2 & 31 & 0 & 2 & 6 & 6 & 8\\ \hline
+\textit{ind1} & 19 & 12 & 2 & 31 & 0 & 2 & 6 & 6 & 8\\ \hline
 
-\emph{ind2} & 50 & 0 & 0 & 39 & 0 & 11 & 0 & 0 & 0\\ \hline
+\textit{ind2} & 50 & 0 & 0 & 39 & 0 & 11 & 0 & 0 & 0\\ \hline
 
-\emph{lt\_qqer} & 25 & 30 & 0 & 19 & 9 & 6 & 8 & 0 & 0\\ \hline
+\textit{lt\_qqer} & 25 & 30 & 0 & 19 & 9 & 6 & 8 & 0 & 0\\ \hline
 
-\emph{lt\_rec} & 0 & 53 & 0 & 34 & 0 & 0 & 13 & 0 & 0\\ \hline
+\textit{lt\_rec} & 0 & 53 & 0 & 34 & 0 & 0 & 13 & 0 & 0\\ \hline
 
-\end{tabular} \caption{Estudo para fatores de carga de trabalho.}
-\label{tab:estudo_para_fatores_de_carga_de_trabalho}
+\end{tabular} \caption{Estudo para fatores de carga de trabalho, L é a
+latência.} \label{tab:estudo_para_fatores_de_carga_de_trabalho}
 
 \end{table}
 
@@ -638,22 +633,22 @@ Como esperado, localidade e latência influenciaram as respostas em geral. O
 impacto de popularidade dos objetos é praticamente nulo. Apesar de alguns modos
 aparentemente terem sido impactados pela relação leitura/escrita, esse impacto
 foi consequência da relação entre requisições locais e remotas. Para
-\emph{ind1}, tanto leituras quanto escritas são locais e a relação
+\textit{ind1}, tanto leituras quanto escritas são locais e a relação
 leitura/escrita e suas interações com outros fatores impacta pouco esse modo.
-Para \emph{lt\_rec}, leituras e escritas são locais ou remotas dependendo da
-localidade e a relação leitura/escrita não impacta esse modo. Para \emph{ind2},
-todas as leituras são locais e metade das escritas é remota, portanto quando a
-relação leitura/escrita muda, a relação entre requisições locais e remotas muda
-proporcionalmente -- como esperado, esse modo é impactado pela relação
-leitura/escrita. A mesma observação vale para \emph{lt\_qqer}, que tem todas as
-leituras locais e escritas dependendo da localidade, e também sofre impacto da
-relação leitura/escrita. Caso o mecanismo de armazenamento fosse disco em vez de
-memória, a relação leitura/escrita provavelmente sofreria impacto. Isso porque
-escritas seriam afetadas pelo tempo de escrita no disco, enquanto leituras
-poderiam ser mais rápidas pois parte delas seriam servidas a partir do cache de
-disco.
+Para \textit{lt\_rec}, leituras e escritas são locais ou remotas dependendo da
+localidade e a relação leitura/escrita não impacta esse modo. Para
+\textit{ind2}, todas as leituras são locais e metade das escritas é remota,
+portanto quando a relação leitura/escrita muda, a relação entre requisições
+locais e remotas muda proporcionalmente -- como esperado, esse modo é impactado
+pela relação leitura/escrita. A mesma observação vale para \textit{lt\_qqer},
+que tem todas as leituras locais e escritas dependendo da localidade, e também
+sofre impacto da relação leitura/escrita. A relação leitura/escrita
+provavelmente sofreria impacto caso o mecanismo de armazenamento fosse disco em
+vez de memória, dado que escritas seriam afetadas pelo tempo de escrita no
+disco, enquanto leituras poderiam ser mais rápidas pois parte delas seriam
+servidas a partir do cache de disco.
 
-Dessa forma, só foram escolhidos níveis para localidade:
+Assim, apenas localidade foi selecionada como fator:
 
 \begin{itemize}
 
@@ -672,22 +667,29 @@ Os valores fixados dos fatores desconsiderados foram:
 \end{itemize}
 
 %% ------------------------------------------------------------------------- %%
-\section{Análise dos Resultados}
+\section{Estudo Final} \label{sec:estudo_final}
 
 O estudo final consistiu de um total de 64 experimentos, com os fatores
 selecionados nos estudos 2\textsuperscript{k}, apresentados na
-Tabela~\ref{tab:fatores_e_niveis_do_estudo_final}.
+Tabela~\ref{tab:fatores_e_niveis_do_estudo_final}. Os experimentos usaram uma
+quantidade de amostras tal que o nível de confiança fosse 99\% e a exatidão
+fosse 1\% \cite{Jain1991}. O único caso com número de amostras menor que o
+necessário foi \textit{lt\_rec} -- nesse caso, o mesmo nível de confiança foi
+adotado e a exatidão foi 2\%. Duas replicações do estudo foram feitas para
+estimar a variabilidade dos experimentos. A média dos CVs dos experimentos foi
+1\% para leituras e 0,8\% para escritas.
 
 \begin{table}[ht] \centering \begin{tabular}{|l|c|c|} \hline
 
 \multicolumn{1}{|c|}{Fator} & \multicolumn{1}{|c|}{Níveis} &
 \multicolumn{1}{|c|}{Total de níveis}\\ \hline
 
-Modo & \emph{ind1}, \emph{ind2}, \emph{lt\_qqer} e \emph{lt\_rec} & 4\\ \hline
+Modo & \textit{ind1}, \textit{ind2}, \textit{lt\_qqer} e \textit{lt\_rec} & 4\\
+\hline
 
 Latência da WAN (ms) & 0, 100, 200 e 300 & 4\\ \hline
 
-Variação da latência da WAN (\%) & 0 e 60 & 2\\ \hline
+\textit{Jitter} da WAN (\%) & 0 e 60 & 2\\ \hline
 
 Localidade & 50\% e 90\% & 2\\ \hline
 
@@ -698,75 +700,67 @@ Localidade & 50\% e 90\% & 2\\ \hline
 
 \end{table}
 
-%% ------------------------------------------------------------------------- %%
-\subsection{Amostras e Replicações}
-
-Os experimentos usaram uma quantidade de amostras tal que o nível de confiança
-fosse 99\% e a exatidão fosse 1\% \cite{Jain1991}. O único caso com um número de
-amostra menor que o necessário foi \emph{lt\_rec} -- nesse caso, o mesmo nível de
-confiança foi adotado e a exatidão foi 2\%.
-
-Uma replicação do estudo foi feita para estimar a variabilidade dos
-experimentos. Isso foi feito calculando-se os CVs de duas replicações de cada
-experimento. A média dos CVs de todos os experimentos foi 1\% para leituras e
-0,8\% para escritas, e o máximo foi 8\% para leituras e 5\% para escritas.
-
-%% ------------------------------------------------------------------------- %%
-\subsection{Análise dos Tempos de Resposta}
-\label{sec:analise_dos_tempos_de_resposta}
-
 Os resultados para latências de 100 ms, 200 ms e 300 ms apresentam o mesmo
 comportamento, portanto a opção foi fazer a análise para um deles apenas. O
 boxplot para latência de rede de 200~ms está na Figura
-\ref{fig:boxplot_dos_tempos_de_resposta_para_latencia_de_rede_de_200_ms}. Os
-casos em que a caixa não aparece indicam que todas as requisições delimitadas
-pelos bigodes eram locais.
+\ref{fig:boxplot_dos_tempos_de_resposta}. Os casos em que a caixa não aparece
+indicam que todas as requisições delimitadas pelos bigodes do boxplot eram
+locais. A mesma análise foi feita com carga máxima em vez de 15 operações/s por
+thread. Como a Figura~\ref{fig:boxplot_dos_tempos_de_resposta_para_carga_maxima}
+mostra, todos os modos apresentaram um aumento nos tempos de resposta, mas
+mantiveram o comportamento.
 
 \begin{figure}[ht] \centering
 
-\includegraphics[width=1\textwidth]{boxplot200.png}
+\includegraphics[width=0.7\textwidth]{boxplot200.png}
 
-\caption{Boxplot dos tempos de resposta para latência de rede de 200 ms.}
-\label{fig:boxplot_dos_tempos_de_resposta_para_latencia_de_rede_de_200_ms}
-\end{figure}
+\caption{Boxplot dos tempos de resposta para 15 operações/s por thread.}
+\label{fig:boxplot_dos_tempos_de_resposta} \end{figure}
 
-No caso de leituras e localidade de 50\%, apenas \emph{lt\_rec} apresenta
+\begin{figure}[ht] \centering
+
+\includegraphics[width=0.7\textwidth]{boxplot200_max.png}
+
+\caption{Boxplot dos tempos de resposta para carga máxima por thread.}
+\label{fig:boxplot_dos_tempos_de_resposta_para_carga_maxima} \end{figure}
+
+No caso de leituras e localidade de 50\%, apenas \textit{lt\_rec} apresenta
 requisições remotas. Uma porção pequena dessas leituras tem tempo de resposta
-menor que a latência da rede, o que se explica pelo \emph{jitter} de até 60\%.
+menor que a latência da rede, o que se explica pelo \textit{jitter} de até 60\%.
 
-Para leituras e localidade de 90\%, \emph{lt\_rec} é beneficiado, mas continua
-apresentando requisições remotas (valores atípicos no gráfico).  No caso de
-escritas e localidade de 50\%, \emph{lt\_rec} apresenta um desempenho um pouco
-melhor que \emph{ind2} e \emph{lt\_qqer}. A explicação provável para isso é o
-sistema estar menos carregado para esse modo do que os outros, o que acontece
-pois as leituras de \emph{lt\_rec} são mais lentas. Esse fato é comprovado pela
-vazão dos modos \emph{lt\_rec}, ev2 e \emph{lt\_qqer}, respectivamente, 594,
-1072, 941 operações/s.
+Para leituras e localidade de 90\%, \textit{lt\_rec} é beneficiado, mas continua
+apresentando requisições remotas (valores atípicos no gráfico). No caso de
+escritas e localidade de 50\%, \textit{lt\_rec} apresenta um desempenho um pouco
+melhor que \textit{ind2} e \textit{lt\_qqer}. Isso ocorre pois o sistema está
+menos carregado para esse modo do que para os outros, já que as leituras de
+\textit{lt\_rec} são mais lentas. Esse fato é comprovado pela vazão dos modos
+\textit{lt\_rec}, \textit{ev2} e \textit{lt\_qqer}, respectivamente, 594, 1072,
+941 operações/s.
 
-Para escritas e localidade de 90\%, \emph{lt\_rec} e \emph{lt\_qqer} apresentam
-melhor desempenho devido à localidade, mas ainda apresentam requisições remotas
-(valores atípicos no gráfico). Já \emph{ind2} continua apresentando o mesmo
-perfil que para localidade de 50\%.
+Para escritas e localidade de 90\%, \textit{lt\_rec} e \textit{lt\_qqer}
+apresentam melhor desempenho devido à localidade, mas ainda apresentam
+requisições remotas (valores atípicos no gráfico). Já \textit{ind2} continua
+apresentando o mesmo perfil que para localidade de 50\%.
 
 Os modos apresentaram o comportamento esperado. A hipótese de que a consistência
 na linha do tempo é competitiva em termos de desempenho com a consistência em
 momento indeterminado se confirma para o caso em que a localidade é alta e
-principalmente caso leituras de ``qualquer versão'' sejam usadas.
+principalmente quando leituras de ``qualquer versão'' são usadas.
 
 %% ------------------------------------------------------------------------- %%
-\subsection{Ameaças à Validade} \label{sec:ameacas_a_validade}
+\section{Ameaças à Validade} \label{sec:ameacas_a_validade}
 
-Muitos parâmetros foram fixados e fatores tidos como influentes foram
-desconsiderados. Com isso, estudos
-que usem outros valores para os parâmetros ou considerem outros fatores podem
-apresentar resultados diferentes. Isso vale particularmente para a quantidade de nós do
-sistema, que apareceu com influência relativamente alta. Além disso, outras
-faixas de níveis podem levar a outros resultados \cite{Jain1991}.
+Parâmetros foram fixados e fatores tidos como influentes foram desconsiderados.
+Com isso, estudos que usem outros valores para os parâmetros ou considerem
+outros fatores podem apresentar resultados diferentes. Isso vale particularmente
+para a quantidade de nós do sistema, que apareceu com influência relativamente
+alta. Além disso, outras faixas de níveis podem levar a outros resultados
+\cite{Jain1991}.
 
-Os experimentos consideram que todos os nós sempre operam sem falhas. Os resultados de experimentos com o sistema
-operando em algum modo de falha (desde a falha de um nó até de um centro de
-processamento de dados inteiro) devem ser diferentes dos obtidos nesse estudo.
-Observação semelhante vale para a carga do sistema.
+Os experimentos consideram que todos os nós sempre operam sem falhas. Os
+resultados de experimentos com o sistema operando em algum modo de falha (desde
+a falha de um nó até de um centro de processamento de dados inteiro) devem ser
+diferentes dos obtidos nesse estudo.
 
 %% ------------------------------------------------------------------------- %%
 \section{Trabalhos Relacionados} \label{sec:trabalhos_relacionados}
@@ -785,57 +779,52 @@ sistemas é provar outros conceitos além da eficiência do modelo de consistência
 escolhido por eles. O COPS usa consistência causal+, que é semelhante à
 consistência causal com algumas garantia a mais, e implementa transações
 \cite{Lloyd2011}. O Scatter propõe uma arquitetura ao mesmo tempo escalável e
-com consistência forte \cite{Glendenning2011}. O Windows Azure
-provê um sistema de armazenamento na nuvem com consistência forte
-\cite{Calder2011}. O Megastore usa Paxos para implementar consistência forte
-\cite{Baker2011}. Nenhum desses trabalhos apresenta comparações com outros
-sistemas ou com outros modelos de consistência. Como eles não usam uma aplicação
-para execução de testes ou ambiente comum, é difícil fazer qualquer comparação a
-partir desses trabalhos.
+com consistência forte \cite{Glendenning2011}. O Windows Azure provê um sistema
+de armazenamento na nuvem com consistência forte \cite{Calder2011}. O Megastore
+usa Paxos para implementar consistência forte \cite{Baker2011}. Nenhum desses
+trabalhos apresenta comparações com outros sistemas ou com outros modelos de
+consistência. Como eles não usam uma aplicação para execução de testes ou
+ambiente em comum, é difícil fazer comparações a partir deles.
 
-Beyer et al. realizaram testes para analisar a relação entre as diferentes
-configurações de consistência no Cassandra e sua disponibilidade e desempenho
-\cite{Beyer2011}. Como esperado, eles notam que configurações que oferecem
-consistência mais rígida apresentam pior desempenho. Renesse e Schneider
-apresentam resultados experimentais comparando desempenho e disponibilidade de
-replicação mestre-escravo e replicação em cadeia, cada uma delas usando
-consistência forte e consistência em momento indeterminado
-\cite{vanRenesse2004}. Nenhum desses dois experimentos leva em consideração
-operação sobre WAN nem diferentes cargas de trabalho.
+As diferentes configurações de consistência no Cassandra e sua disponibilidade e
+desempenho foram analisadas em \cite{Beyer2011}, que conclui que configurações
+que oferecem consistência mais rígida apresentam pior desempenho. Desempenho e
+disponibilidade de replicação mestre-escravo e em cadeia são comparados em
+\cite{vanRenesse2004}, cada uma delas usando consistência forte e consistência
+em momento indeterminado. Nenhum desses estudos leva em consideração operação
+sobre WAN nem diferentes cargas de trabalho.
 
-Uma publicação com uma proposta mais próxima da deste trabalho é a comparação
-feita entre Cassandra, HBase, PNUTS e MySQL particionado horizontalmente usando
-diferentes cargas de trabalho \cite{Cooper2010}. Os resultados servem como uma
+Um estudo com proposta mais próxima da deste trabalho é a comparação usando
+diferentes cargas de trabalho feita entre Cassandra, HBase, PNUTS e MySQL
+particionado horizontalmente \cite{Cooper2010}. Os resultados servem como uma
 comparação entre esses sistemas, mas dizem menos sobre seus modelos de
 consistência, dado que os sistemas apresentam arquiteturas e configurações
-diferentes. Além disso, os testes são feitos em uma rede local, não em uma WAN.
+diferentes. Além disso, os testes são feitos em uma LAN, não em uma WAN.
 
 %% ------------------------------------------------------------------------- %%
-\section{Conclusões}
+\section{Conclusões} \label{sec:conclusoes}
 
 Este trabalho comparou o desempenho de um mesmo sistema de armazenamento usando
-dois modelos de consistência diferentes operando
-em uma WAN. Além disso, apresentou resultados sobre a
-infuência que diversos fatores têm sobre o desempenho de um sistema de
-armazenamento operando sobre WAN. A consistência na linha do tempo se mostrou competitiva com a
-consistência em momento indeterminado quando a localidade de escritas é alta e
-quando as leituras são de ``qualquer versão''.
+dois modelos de consistência diferentes operando em uma WAN. Além disso,
+apresentou resultados sobre a influência de diferentes fatores e suas interações
+sobre o desempenho do mesmo sistema. A consistência na linha do tempo se mostrou
+competitiva com a consistência em momento indeterminado quando a localidade de
+escritas é alta e quando as leituras são de ``qualquer versão''.
 
 As principais vantagens da consistência na linha do tempo sobre em momento
 indeterminado são a garantia de que as réplicas não são atualizadas com valores
 divergentes e a existência de uma réplica mestre que corresponde à versão mais
-recente. Um cenário
-interessante para seu uso é o
-caso em que a aplicação tolera inconsistências na maioria das leituras, mas em
-algumas poucas situações precisa da versão consistente. Já sua principal desvantagem é a indisponibilidade da réplica mestre impedir escritas e leituras
-consistentes. Outra desvantagem é que mesmo sendo competitiva, ela apresenta
-variabilidade relativamente alta nos tempos de resposta. Para
-aplicações em que os requisitos de tempos de resposta são dados pelo percentil
-99,9, como é o caso da Amazon \cite{DeCandia2007}, a consistência na linha do
-tempo não é adequada.
+recente. Um cenário interessante para seu uso é o caso em que a aplicação tolera
+inconsistências na maioria das leituras, mas em algumas poucas situações precisa
+da versão consistente. Já sua principal desvantagem é a indisponibilidade da
+réplica mestre impedir escritas e leituras consistentes. Outra desvantagem é que
+mesmo sendo competitiva, ela apresenta variabilidade relativamente alta nos
+tempos de resposta. Para aplicações em que os requisitos de tempos de resposta
+são dados pelo percentil 99,9, como é o caso da Amazon \cite{DeCandia2007}, a
+consistência na linha do tempo não é adequada.
 
 %% ------------------------------------------------------------------------- %%
-\section{Agradecimentos}
+\section{Agradecimentos} \label{sec:agradecimentos}
 
 Os experimentos apresentados neste trabalho foram realizados utilizando a
 plataforma para experimentos Grid'5000, desenvolvida pela ação de
