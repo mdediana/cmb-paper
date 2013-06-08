@@ -84,19 +84,17 @@ implementação de mecanismos de resolução de conflitos e ações de compensação.
 Este trabalho é um comparativo de desempenho de um sistema de armazenamento
 georeplicado usando dois modelos de consistência diferentes. Um deles, a
 consistência em momento indeterminado (\textit{eventual consistency}\footnote{O
-termo \textit{eventual consistency} às vezes é erroneamente traduzido para o
-português como consistência eventual. Mas \textit{eventual} é um falso cognato,
-já que em inglês ele indica que algo certamente acontecerá no futuro, mas em
-português significa que algo pode ou não acontecer no futuro. Daí a opção de
-traduzir \textit{eventual} por ``em momento indeterminado''.}) é um modelo mais
-relaxado e se tornou especialmente popular após a publicação sobre o Dynamo da
-Amazon \cite{DeCandia2007}. Um modelo de consistência para sistemas
-georeplicados menos popular, que busca um meio termo entre consistência forte e
-consistência em momento indeterminado é a consistência na linha do tempo, usada
-no PNUTS do Yahoo! \cite{Cooper2008}. Ela é uma opção interessante por
-simplificar a programação, desde que seu desempenho seja próximo ao da
-consistência em momento indeterminado e a aplicação tolere níveis mais baixos de
-disponibilidade.
+termo \textit{eventual consistency} não foi traduzido como \textit{consistência
+eventual} pois \textit{eventual} é um falso cognato: em inglês indica que algo
+certamente acontecerá no futuro, enquanto em português indica que algo pode ou
+não vir a acontecer.}) é um modelo mais relaxado e se tornou especialmente
+popular após a publicação sobre o Dynamo da Amazon \cite{DeCandia2007}. Um
+modelo de consistência para sistemas georeplicados menos popular, que busca um
+meio termo entre consistência forte e consistência em momento indeterminado é a
+consistência na linha do tempo, usada no PNUTS do Yahoo! \cite{Cooper2008}. Ela
+é uma opção interessante por simplificar a programação, desde que seu desempenho
+seja próximo ao da consistência em momento indeterminado e a aplicação tolere
+níveis mais baixos de disponibilidade.
 
 %% ------------------------------------------------------------------------- %%
 \section{Consistência em Momento Indeterminado e na Linha do Tempo}
@@ -168,30 +166,29 @@ escolhida.
 
 Um sistema precisava ser escolhido como objeto do estudo. Como nenhum sistema
 com os dois modelos de consistência foi encontrado, optou-se por implementar a
-consistência na linha do tempo no
-Riak\footnote{\url{http://wiki.basho.com/Riak.html}}, sistema de software livre
-que já traz consistência em momento indeterminado. Além do novo modelo de
+consistência na linha do tempo no Riak, sistema de software livre que já traz
+consistência em momento indeterminado \cite{Riak2013}. Além do novo modelo de
 consistência, também foi implementado um algoritmo de particionamento que
 garante que existe ao menos uma réplica de cada objeto em cada centro de
-processamento de dados.
+processamento de dados\footnote{Implementações disponíveis em
+\url{https://github.com/mdediana/riak_kv} e
+\url{https://github.com/mdediana/riak_core}}.
 
-Como \textit{benchmark}, foi usado o Basho
-Bench\footnote{\url{http://docs.basho.com/riak/latest/cookbooks/Benchmarking/}},
-específico para Riak. Ele foi adaptado para executar de forma distribuída, com
+Como \textit{benchmark}, foi usado o Basho Bench, específico para Riak
+\cite{BashoBench2013}. Ele foi adaptado para executar de forma distribuída, com
 uma instância para cada centro de processamento de dados.
 
-Os experimentos emularam uma WAN pelo uso do
-netem\footnote{\url{http://www.linuxfoundation.org/collaborate/workgroups/networking/netem}},
-controlado pelo traffic control (tc). Ele provê funcionalidade para emulação de
-características de rede como latência e perda de pacotes. As configurações de
-rede foram alteradas nos experimentos de acordo com recomendações sobre
-otimizações de sistemas Linux para quando esses se comunicam por WANs
-\cite{ESNet2012}, como usar o dobro do Produto Banda-Atraso (BDP) como tamanho
-dos buffers de transmissão e recepção, por exemplo.
+Os experimentos emularam uma WAN pelo uso do netem, controlado pelo traffic
+control (tc). Ele provê funcionalidade para emulação de características de rede
+como latência e perda de pacotes. As configurações de rede foram alteradas nos
+experimentos de acordo com recomendações sobre otimizações de sistemas Linux
+para quando esses se comunicam por WANs \cite{ESnet2012}, como usar o dobro do
+Produto Banda-Atraso (BDP) como tamanho dos buffers de transmissão e recepção,
+por exemplo.
 
-Os experimentos foram executados no
-Grid'5000\footnote{\url{http://www.grid5000.fr/}}, uma plataforma para criação,
-execução e monitoramento de experimentos de sistemas paralelos e distribuídos.
+Os experimentos foram executados no Grid'5000, uma plataforma para criação,
+execução e monitoramento de experimentos de sistemas paralelos e distribuídos
+\cite{Grid50002013}.
 
 O trabalho usou experimentos fatoriais, que consistem da combinação de fatores
 em cada experimento que compõe o estudo \cite{Jain1991}. Quanto maior a
@@ -246,7 +243,8 @@ O único dispositivo de rede era um comutador FastIron Super X. Testes mostraram
 que não existiam gargalos no comutador mesmo nos experimentos com maior consumo
 de banda.
 
-\item \textbf{Topologia da rede:} Estrela, que era a topologia do aglomerado.
+\item \textbf{Topologia da rede:} Estrela, a única topologia de rede disponível
+no Grid'5000.
 
 \item \textbf{Largura de banda da LAN:} 1 Gb/s era a largura de banda das placas
 de rede dos nós do aglomerado.
@@ -323,7 +321,7 @@ fatores em um único projeto de experimentos 2\textsuperscript{k}. O problema é
 que mesmo com apenas dois níveis por fator, a quantidade final de experimentos
 seria proibitiva.
 
-A opção adotada então foi dividi-los em grupos menores de fatores relacionados e
+A opção adotada então foi dividí-los em grupos menores de fatores relacionados e
 realizar estudos para cada grupo. Com isso, perdeu-se a comparação entre fatores
 de grupos diferentes e suas interações. Mas como a maioria dos fatores se
 mostrou pouco influente em seus grupos, como se vê nas subseções a seguir, essa
@@ -337,12 +335,9 @@ quando necessário.
 
 Existiram casos onde as respostas de todos os experimentos de um estudo eram
 semelhantes, independentemente dos níveis. Para tratar esses casos, também foram
-calculados os coeficientes de variação\footnote{O coeficiente de variação é a
-divisão do desvio padrão pela média e é uma maneira de representar a
-variabilidade dos dados desconsiderando sua ordem de grandeza.} (CVs) das
-respostas para estimar qual a influência daquele conjunto de fatores e
-interações como um todo. Assim, um CV baixo indicava que nenhum dos fatores em
-questão eram influentes.
+calculados os coeficientes de variação (CVs) das respostas para estimar qual a
+influência daquele conjunto de fatores e interações como um todo. Assim, um CV
+baixo indicava que nenhum dos fatores em questão eram influentes.
 
 Para a consistência na linha do tempo, apenas a inserção de objetos na etapa de
 carga não era suficiente para que o sistema operasse no seu estado estacionário
@@ -366,8 +361,8 @@ representam respectivamente requisições locais e remotas.
 As quantidades de nós de sistema e de instâncias do \textit{benchmark} não só
 influenciavam as respostas, como também afetavam questões operacionais ligadas a
 reserva de nós no Grid'5000. Portanto, um estudo foi feito para definir a
-influência desses fatores. Os níveis usados foram (entre parênteses está o
-identificador do fator na tabela com o resultado):
+influência desses fatores. Os níveis usados foram os seguintes, sendo o valor
+entre parênteses o identificador do fator, usado nas tabelas com o resultado:
 
 \begin{itemize}
 
@@ -422,8 +417,7 @@ limitações de recursos do aglomerado.
 \subsection{Fatores de banco de dados} \label{sec:fatores_de_banco_de_dados}
 
 Um estudo foi feito para dimensionar o tamanho do banco de dados, que afetava o
-uso de memória e de banda nos nós. Os níveis usados foram (entre parênteses está
-o identificador do fator na tabela com o resultado):
+uso de memória e de banda nos nós. Os níveis usados foram os seguintes:
 
 \begin{itemize}
 
@@ -477,8 +471,7 @@ que 500 bytes \cite{Atikoglu2012}.
 \subsection{Fatores de rede} \label{sec:fatores_de_rede}
 
 Dado o objetivo do trabalho, o estudo para fatores de rede era um dos mais
-importantes da etapa de seleção de fatores. Os níveis usados foram (entre
-parênteses está o identificador do fator na tabela com o resultado):
+importantes da etapa de seleção de fatores. Os níveis usados foram os seguintes:
 
 \begin{itemize}
 
@@ -501,20 +494,18 @@ as regiões dos Amazon Web Services \cite{Sovran2011}, no qual a menor latência
 foi 82 ms entre os centros de processamento de dados em cada costa dos EUA e a
 maior foi 277 ms entre Irlanda e Singapura.
  
-O projeto PingER\footnote{\textit{Ping End-to-end Reporting} (Relatório de Ping
-Fim-a-fim) é um projeto de monitoramento de desempenho fim-a-fim de enlaces de
-Internet: \url{http://www-iepm.slac.stanford.edu/pinger/}.} serviu de base para
-os outros fatores. Para janeiro de 2013, ele mostra uma média de latência de
-238,062 ms com desvio padrão de 142,996 ms, o que resulta em \textit{jitter} de
-60\%. Os 11 meses anteriores apresentavam valores semelhantes. A mediana da taxa
-de perda de pacotes do último ano foi 0,178\%. A média da taxa de duplicação de
-pacotes em janeiro de 2013 foi 0,006\%. Os valores usados no experimento para
-duplicação e reordenação foram maiores do que os observados pelo PingER, mas
-mesmo assim não influenciaram a resposta.
+O projeto PingER serviu de base para os outros fatores \cite{PingER2013}. Para
+janeiro de 2013, ele mostra uma média de latência de 238,062 ms com desvio
+padrão de 142,996 ms, o que resulta em \textit{jitter} de 60\%. Os 11 meses
+anteriores apresentavam valores semelhantes. A mediana da taxa de perda de
+pacotes do último ano foi 0,178\%. A média da taxa de duplicação de pacotes em
+janeiro de 2013 foi 0,006\%. Os valores usados no experimento para duplicação e
+reordenação foram maiores do que os observados pelo PingER, mas mesmo assim não
+influenciaram a resposta.
 
 Tanto H-TCP quanto CUBIC foram projetados com foco em redes com largura de banda
 e latências grandes (BDP alto) e foram escolhidos pois são citados nas
-referências sobre otimizações da pilha TCP para WANs \cite{ESNet2012}.
+referências sobre otimizações da pilha TCP para WANs \cite{ESnet2012}.
 
 No emulador de rede, a latência define o mínimo e o \textit{jitter} o máximo a
 que ela pode chegar. Por exemplo, ao fazer a configuração de 100 ms de latência
@@ -576,8 +567,7 @@ Os valores fixados dos fatores desconsiderados foram:
 \label{sec:fatores_de_carga_de_trabalho}
 
 Este era um dos estudos mais importantes juntamente ao estudo para fatores de
-rede. Os níveis usados foram (entre parênteses está o identificador do fator na
-tabela com o resultado):
+rede. Os níveis usados foram os seguintes:
 
 \begin{itemize}
 
@@ -702,26 +692,27 @@ Localidade & 50\% e 90\% & 2\\ \hline
 
 Os resultados para latências de 100 ms, 200 ms e 300 ms apresentam o mesmo
 comportamento, portanto a opção foi fazer a análise para um deles apenas. O
-boxplot para latência de rede de 200~ms está na Figura
+\textit{boxplot} para latência de rede de 200~ms está na Figura
 \ref{fig:boxplot_dos_tempos_de_resposta}. Os casos em que a caixa não aparece
-indicam que todas as requisições delimitadas pelos bigodes do boxplot eram
-locais. A mesma análise foi feita com carga máxima em vez de 15 operações/s por
-thread. Como a Figura~\ref{fig:boxplot_dos_tempos_de_resposta_para_carga_maxima}
-mostra, todos os modos apresentaram um aumento nos tempos de resposta, mas
-mantiveram o comportamento.
+indicam que todas as requisições delimitadas pelos bigodes do \textit{boxplot}
+eram locais. A mesma análise foi feita com carga máxima em vez de 15 operações/s
+por thread. Como a
+Figura~\ref{fig:boxplot_dos_tempos_de_resposta_para_carga_maxima} mostra, todos
+os modos apresentaram um aumento nos tempos de resposta, mas mantiveram o
+comportamento.
 
 \begin{figure}[ht] \centering
 
 \includegraphics[width=0.7\textwidth]{boxplot200.png}
 
-\caption{Boxplot dos tempos de resposta para 15 operações/s por thread.}
-\label{fig:boxplot_dos_tempos_de_resposta} \end{figure}
+\caption{\textit{Boxplot} dos tempos de resposta para 15 operações/s por
+thread.} \label{fig:boxplot_dos_tempos_de_resposta} \end{figure}
 
 \begin{figure}[ht] \centering
 
 \includegraphics[width=0.7\textwidth]{boxplot200_max.png}
 
-\caption{Boxplot dos tempos de resposta para carga máxima por thread.}
+\caption{\textit{Boxplot} dos tempos de resposta para carga máxima por thread.}
 \label{fig:boxplot_dos_tempos_de_resposta_para_carga_maxima} \end{figure}
 
 No caso de leituras e localidade de 50\%, apenas \textit{lt\_rec} apresenta
