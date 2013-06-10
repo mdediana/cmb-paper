@@ -359,10 +359,12 @@ representam respectivamente requisições locais e remotas.
 \label{sec:fatores_de_tamanho_do_sistema_e_benchmark}
 
 As quantidades de nós de sistema e de instâncias do \textit{benchmark} não só
-influenciavam as respostas, como também afetavam questões operacionais ligadas a
-reserva de nós no Grid'5000. Portanto, um estudo foi feito para definir a
-influência desses fatores. Os níveis usados foram os seguintes, sendo o valor
-entre parênteses o identificador do fator, usado nas tabelas com o resultado:
+influenciavam as respostas, como também influenciavam questões operacionais
+ligadas à reserva de nós -- pelas regras do Grid'5000, quanto maior a quantidade
+de nós reservada, menor é o tempo de uso permitido. Portanto, um estudo foi
+feito para definir a influência desses fatores. Os níveis usados foram os
+seguintes, sendo o valor entre parênteses o identificador do fator, usado nas
+tabelas com o resultado:
 
 \begin{itemize}
 
@@ -409,9 +411,9 @@ escrita & 90 & 65 & 15 & 13 & 3 & 3 & 0 & 0 \\ \hline
 \end{itemize}
 
 Esses valores foram selecionados pois resultaram em uma configuração ``leve'',
-evitando gargalos de rede e não sobrecarregando o sistema. Ao mesmo tempo, a
-quantidade total de nós necessária para os experimentos se enquadrava nas
-limitações de recursos do aglomerado.
+evitando gargalos de rede e não sobrecarregando o sistema. Apesar de desejável,
+uma quantidade maior de nós implicaria em falta de homogeneidade do hardware e
+dificuldades operacionais devido às regras do Grid'5000.
 
 %% ------------------------------------------------------------------------- %%
 \subsection{Fatores de banco de dados} \label{sec:fatores_de_banco_de_dados}
@@ -748,10 +750,11 @@ para a quantidade de nós do sistema, que apareceu com influência relativamente
 alta. Além disso, outras faixas de níveis podem levar a outros resultados
 \cite{Jain1991}.
 
-Os experimentos consideram que todos os nós sempre operam sem falhas. Os
-resultados de experimentos com o sistema operando em algum modo de falha (desde
-a falha de um nó até de um centro de processamento de dados inteiro) devem ser
-diferentes dos obtidos nesse estudo.
+Os experimentos consideram que todos os nós sempre operam sem falhas.
+Experimentos com o sistema operando em algum modo de falha (desde a falha de um
+nó até de um centro de processamento de dados inteiro) devem apresentar
+resultados diferentes dos obtidos nesse estudo, mas não foram realizados devido
+a limitações de recursos da pesquisa.
 
 %% ------------------------------------------------------------------------- %%
 \section{Trabalhos Relacionados} \label{sec:trabalhos_relacionados}
@@ -820,8 +823,7 @@ consistência na linha do tempo não é adequada.
 Os experimentos apresentados neste trabalho foram realizados utilizando a
 plataforma para experimentos Grid'5000, desenvolvida pela ação de
 desenvolvimento ALADDIN INRIA com o apoio do CNRS, RENATER e várias
-universidades, bem como outros organismos de financiamento (ver
-\url{https://www.grid5000.fr}).
+universidades, bem como outros órgãos de financiamento.
 
 \section{Referências} \bibliographystyle{sbc} \bibliography{bibliografia}
 
