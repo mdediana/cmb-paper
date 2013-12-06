@@ -1,0 +1,10 @@
+#!/bin/bash
+
+f=bibliografia.bib
+
+sed -i "/doi =/d
+/isbn =/d
+/issn =/d
+/file =/d
+/pages =/d
+/publisher =/d" $f
