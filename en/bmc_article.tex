@@ -165,7 +165,7 @@ in Geo-replicated Systems}
 
 \begin{artnotes}
 %\note{Sample of title note}     % note to the article
-\note[id=n1]{Equal contributor} % note, connected to author
+%\note[id=n1]{Equal contributor} % note, connected to author
 \end{artnotes}
 
 \end{fmbox}% comment this for two column layout
@@ -377,9 +377,7 @@ To be able to accurately compare the consistency models without interference of 
 in Riak, a free software system which already implements eventual consistency
 \cite{Riak2013}. Besides the new consistency consistency, we also implemented a
 partitioning algorithm that ensures that there exist at least one replica of
-each object in each data center \footnote{Implementations available at
-\url{https://github.com/mdediana/riak_kv} and
-\url{https://github.com/mdediana/riak_core}}.
+each object in each data center \cite{DeDiana2013a, DeDiana2013b}.
 
 For running the experiments and gathering results, we used the Riak benchmark Basho Bench \cite{BashoBench2013}. We adapted it to be able to run more than a single instance simultaneously, with one instance for each data center.
 
@@ -967,10 +965,10 @@ per-record timeline consistency is not appropriate.
 %\section*{Competing interests}
 %  The authors declare that they have no competing interests.
 
-\section{Author's contributions}
-    Text for this section \ldots
+%\section{Author's contributions}
+%    Text for this section \ldots
 
-\section{Acknowledgements}
+\section*{Acknowledgements}
 Experiments presented in this paper were carried out using the Grid'5000
 experimental testbed, being developed under the INRIA ALADDIN development action
 with support from CNRS, RENATER and several Universities as well as other
