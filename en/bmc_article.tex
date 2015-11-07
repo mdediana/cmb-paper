@@ -435,9 +435,10 @@ minimum and maximum levels for each factor, resulting in a total of
 \section{Fixed Parameters}
 
 After defining the experimental design, 33 parameters were listed, 16 of which
-were fixed due to resource constraints. It is worth noting that LAN parameters
-were the actual values seeing in the cluster network, while WAN parameters were
-emulated. The fixed parameters and their respective values were:
+were fixed due to resource constraints. With regards to network parameters, the
+values of LAN parameters were the actual values found in the cluster, while WAN
+parameters were emulated. The fixed parameters and their respective values
+were:
 
 \begin{itemize}
 
@@ -446,23 +447,23 @@ Grid'5000. The nodes in the cluster have AMD Opteron 2218 2.6 GHz CPU, 4 GB RAM
 and 1 Gb/s network cards.
 
 \item \textbf{Storage engine:} By using memory as storage mechanism we avoided
-having to consider the effects of disk and disk cache and the interaction
-between disk cache and the amount of RAM, so the only I/O effects observed were
-due to the network.
+the effects of disk and disk cache and the interaction between disk cache and
+the amount of available RAM, so the only I/O effects observed in the
+experiments were due to the network.
 
 \item \textbf{Data center capacity:} Data centers had the same capacity - the
 same number of nodes per data center and nodes with the same hardware
 configuration.
 
-\item \textbf{Key partitioning algorithm:} Riak's default algorithm was used
-(consistent hashing).
+\item \textbf{Key partitioning algorithm:} Consistent hashing, which is the
+default algorithm in Riak.
 
-\item \textbf{Replication factor ($ N $):} 3 is the value that results in a
-reasonable balance between performance, availability and durability in real
-applications \cite{DeCandia2007}.
+\item \textbf{Replication factor ($ N $):} 3, which is the value that results
+in a reasonable balance between performance, availability and durability in
+real applications \cite{DeCandia2007}.
 
-\item \textbf{Migration threshold (for per-record timeline consistency):} 3 is PNUTS
-default value \cite{Cooper2008}.
+\item \textbf{Migration threshold (for per-record timeline consistency):} 3,
+which is PNUTS default value \cite{Cooper2008}.
 
 \item \textbf{Interface access:} HTTP, due to its simplicity.
 
@@ -473,20 +474,20 @@ performance when the logging level was INFO.
 single network device was a FastIron Super X switch, tests have shown there were
 no bottlenecks in the switch even in experiments with high consumption of bandwidth.
 
-\item \textbf{Network topology:} Star, the only available network topology in
+\item \textbf{Network topology:} Star, the only network topology available in
 the cluster.
 
-\item \textbf{LAN bandwidth:} 1 Gb/s was the bandwidth available in the node
-network cards.
+\item \textbf{LAN bandwidth:} 1 Gb/s, which was the bandwidth provided by the
+network cards contained in the nodes.
 
 \item \textbf{LAN latency:} $167\mu$s latency cluster measured with 60 samples
-of pings spaced by five seconds.
+of pings separated by 5 s.
 
 \item \textbf{LAN jitter:} $90\mu$s, jitter measured by the same means as
 latency.
 
-\item \textbf{WAN bandwidth:} 100 Mb/s, based on informal study citing this is
-the commonly observed  bandwidth between AWS availability zones
+\item \textbf{WAN bandwidth:} 100 Mb/s, based on informal study citing this was
+the commonly observed bandwidth between AWS availability zones
 \cite{Pujol2012}.
 
 \item \textbf{Number of WAN links:} 1, which means two simulated data centers.
@@ -496,8 +497,8 @@ benchmark instance.
 
 \end{itemize}
 
-There were 17 remaining candidate factors. Three of those correspond to the mode
-factor.
+There were 17 remaining candidate factors. Three of them were assembled in a
+single factor, the mode.
 
 %% ------------------------------------------------------------------------- %%
 \section{Mode}
