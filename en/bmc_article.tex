@@ -589,7 +589,7 @@ We conducted four intermediate studies, they are described in the following
 subsections. Whenever mode and locality had to be fixed, they were fixed
 respectively at \textit{lat} and 50\%, values that result in a balanced amount
 of reads and writes, both local and remote. When necessary, latency was fixed
-at 100 ms. In the results, the 10 and 90 percentiles represent respectively
+at 100~ms. In the results, the 10 and 90 percentiles represent respectively
 local and remote requests.
 
 %% ------------------------------------------------------------------------- %%
@@ -749,8 +749,8 @@ networks (high BDP), and appear in references about TCP tuning for WANs
 
 In the emulated network, latency defines the minimum level and jitter defines
 the maximum value that latency can reach. For example, when latency is
-configured as 100 ms and variation as 60\%, the emulator generates latency
-values between 100 ms and 160 ms. The generated values followed the normal
+configured as 100~ms and variation as 60\%, the emulator generates latency
+values between 100~ms and 160~ms. The generated values followed the normal
 distribution within the specified range of latency.
 
 The result of the study is presented in Table
@@ -895,11 +895,12 @@ The fixed values of the disregarded factors were:
 %% ------------------------------------------------------------------------- %%
 \section{Final Study}
 
-The final study consisted of a total of 64 experiments with the factors selected
-by the 2\textsuperscript{k} studies, shown in
-Table~\ref{tab:fatores_e_niveis_do_estudo_final}. Two replications of the study were used to
-estimate the variability of the experiments, the measured average CVs
-were 1\% for reads and 0.8\% for writes.
+The final study consisted of a total of 64 experiments with the factors
+selected by the 2\textsuperscript{k} studies.
+Table~\ref{tab:fatores_e_niveis_do_estudo_final} shows the final factors and
+respective levels. Two replications of the study were used to estimate the
+variability of the experiments, the measured average CVs were 1\% for reads and
+0.8\% for writes.
 
 \begin{table}[h!]
 \caption{Factors and levels in the final study.}
@@ -921,12 +922,15 @@ Locality & 50\% and 90\% & 2\\\hline
 
 \end{table}
 
-The system showed similar behavior for 100~ms, 200~ms and 300~ms latency levels, so we used only one of them on the presentation of the final results. The boxplot for the 200~ms latency level is shown in Figure \ref{fig:boxplot_dos_tempos_de_resposta}.
-When a box cannot be seeing in the figure indicate that all requests delimited
-by the boxplot whiskers were local. The same analysis was done with maximum load
-instead of 15 operations/s per thread. As
-Figure~\ref{fig:boxplot_dos_tempos_de_resposta_para_carga_maxima} shows, all
-modes showed an increase in response times, but the behavior did not change.
+The system showed similar behavior for 100~ms, 200~ms and 300~ms latency
+levels, so we used only one of them on the presentation of the final results.
+The boxplot for the 200~ms latency level is shown in Figure
+\ref{fig:boxplot_dos_tempos_de_resposta}. A box not showing in the figure
+indicates that all requests delimited by the boxplot whiskers were local. The
+same analysis was done with maximum load instead of 15 operations/s per thread.
+As Figure~\ref{fig:boxplot_dos_tempos_de_resposta_para_carga_maxima} shows, all
+modes showed an increase in response times, but the general behavior remained
+the same.
 
 \begin{figure}[h!]
 \caption{Boxplot of response times for 15 operations/s per thread.}
@@ -943,68 +947,75 @@ modes showed an increase in response times, but the behavior did not change.
 %% ------------------------------------------------------------------------- %%
 \section{Threats to Validity}
 
-Some parameters were fixed and influential parameters were disregarded.  Thus,
-studies that use other values for the parameters or consider other factors may
-yield different results. This is particularly true for the number of system
-nodes, which showed as highly influential.  In addition, levels at different ranges
-may yield different results \cite{Jain1991}.
+Some parameters were fixed and influential parameters were disregarded. Thus,
+studies that use other values for the parameters or take different factors into
+consideration may yield different results. This is particularly true for the
+number of system nodes, which showed as highly influential in the preliminary
+studies. In addition, levels at different ranges may yield different results
+\cite{Jain1991}.
 
-The experiments do not take node failures into account.  Experiments with the
-system operating in a failure mode (from the failure of a single node to a whole
-datacenter) will likely yield to different results. Such situations were not part of the experiments due to resource limitations.
+The experiments did not take node failures into account. Experiments with the
+system operating in a failure mode (from the failure of a single node to a
+whole data center) will likely yield to different results. Such situations were
+not part of the experiments due to resource limitations.
 
 %% ------------------------------------------------------------------------- %%
 \section{Related Work}
 
-A common approach in the distributed systems literature is the proposal of a new
-concept and the implementation of a system that uses this concept followed by an
-analysis of its performance. Both papers on Dynamo \cite{DeCandia2007} and on
-PNUTS \cite{Cooper2008} show performance analyses. A second paper about PNUTS analyzes bandwidth consumption
-under different replication policies for communication over WANs
-\cite{Kadambi2011}.
+A common approach in the distributed systems literature is the proposal of a
+new concept and the implementation of that concept into a system accompanied by
+a performance analysis. The Dynamo \cite{DeCandia2007} and the PNUTS papers
+\cite{Cooper2008} show performance analyses. A second paper about PNUTS
+analyzes bandwidth consumption under different replication policies for
+communication over WANs \cite{Kadambi2011}.
 
-Several papers present performance analyses of storage systems using replication
-over WANs. In most cases, the goals of the systems are to prove ideas other than the
-efficiency of their consistency model. COPS uses causal+ consistency
-that is similar to causal consistency with more guarantees and implements
-transactions \cite{Lloyd2011}. Scatter proposes an scalable architecture for a strong consistent system \cite{Glendenning2011}. Windows Azure provides a
-cloud storage system with strong consistency \cite{Calder2011}. Megastore uses
-Paxos to implement strong consistency \cite{Baker2011}. None of these works
-present comparisons with other systems or other consistency models. As they do
-not use a common benchmark or the same environment, it is difficult to compare them.
+Several papers present performance analyses of storage systems using
+replication over WANs. In most cases, the goals of the systems are to prove
+ideas other than the efficiency of their consistency model. COPS uses causal+
+consistency that is similar to causal consistency with extended guarantees and
+implements transactions \cite{Lloyd2011}. Scatter proposes an scalable
+architecture for a strong consistent system \cite{Glendenning2011}. Windows
+Azure provides a cloud storage system with strong consistency
+\cite{Calder2011}. Megastore uses Paxos to implement strong consistency
+\cite{Baker2011}. None of these works present comparisons with other systems or
+other consistency models. As they do not use a common benchmark or the same
+environment, it is difficult to compare them.
 
-The different consistency options in Cassandra and its resulting availability and
-performance were analyzed in \cite{Beyer2011}, the conclusion is that settings with
+The different consistency options in Cassandra and the resulting availability
+and performance were analyzed in \cite{Beyer2011}, the conclusion is that
 more strict consistency models perform worse. Performance and availability of
 master-slave replication and chain replication are compared in
 \cite{vanRenesse2004}, each of them using strong consistency and eventual
-consistency. None of these studies consider operation over WAN or different
+consistency. None of these studies consider operation over WANs or different
 workloads.
 
-A closer work to this is a comparison between Cassandra, HBase,
-PNUTS and sharded MySQL under different workloads \cite{Cooper2010}. The results
-are a comparison between these systems, but do not say much about their
-consistency models, since each have different architectures and configuration
-options. Moreover, it only considers the systems operating in a LAN, not a WAN.
+A comparison between Cassandra, HBase, PNUTS and sharded MySQL under different
+workloads can be found in \cite{Cooper2010}. The focus of this work is the
+comparison of the systems performace, but not much can be said about their
+consistency models since they have different architectures, implementations and
+configuration options. Moreover, it only considers the systems operating in a
+LAN, not a WAN.
 
 %% ------------------------------------------------------------------------- %%
 \section{Conclusions}
 
-This study compared the performance of a single storage system operating over a
-WAN using two different consistency models. It also showed results
-about the influence of different factors and their interactions on the system
-performance. The results show that per-object timeline consistency is competitive to eventual consistency
-when write locality is high and when stale reads are an option.
+This study compared the performance of a storage system operating over a WAN
+using two different consistency models. It also showed results about the
+influence of different factors and their interactions on the system
+performance. The results show that per-object timeline consistency is
+competitive to eventual consistency when write locality is high and when stale
+reads are an option.
 
-The main advantages of per-record timeline consistency over eventual consistency are the
-guarantee that conflicting updates do not occur and that the location of the
-most recent value is known -- the master. An interesting scenario for its use is
-the case where the application tolerates staleness in most reads, but in a few
-it needs the most recent value. Per-object timeline consistency main drawbacks are that the
-unavailability of the master replica prevents writes and ``most recent'' reads from
-happening and its relatively high response time variability. For applications where response time
-requirements are on the 99.9 percentile, such as Amazon \cite{DeCandia2007},
-per-record timeline consistency is not appropriate.
+The main advantages of per-record timeline consistency over eventual
+consistency are the guarantee that conflicting updates do not occur and that
+the location of the most recent value is known -- the master. An interesting
+scenario for its use is the case where the application tolerates staleness for
+most of its reads, but needs the most recent value for a few. Per-object
+timeline consistency main drawbacks are that writes and ``most recent'' become
+unavailable if the master replica is unavailable and its relatively high
+response time variability. For applications where response time requirements
+are on the 99.9 percentile, such as Amazon \cite{DeCandia2007}, per-record
+timeline consistency is not appropriate.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                          %%
@@ -1022,9 +1033,9 @@ per-record timeline consistency is not appropriate.
 
 \section*{Acknowledgements}
 Experiments presented in this paper were carried out using the Grid'5000
-experimental testbed, being developed under the INRIA ALADDIN development action
-with support from CNRS, RENATER and several Universities as well as other
-funding bodies.
+experimental testbed, being developed under the INRIA ALADDIN development
+action with support from CNRS, RENATER and several Universities as well as
+other funding bodies.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                  The Bibliography                       %%
