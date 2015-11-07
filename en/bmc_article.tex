@@ -334,108 +334,110 @@ doing capacity planning.
 %% ------------------------------------------------------------------------- %%
 \section{Eventual Consistency and Per-record Timeline Consistency}
 
-Eventual consistency guarantees that once updates cease, all replicas will converge to the same value. While updates are happening, replicas might be
+Eventual consistency guarantees that once updates cease, all replicas will
+converge to the same value. While updates are happening, replicas might be
 inconsistent and clients may access outdated or divergent data -- consequently,
-the system must implement algorithms for conflict detection and resolution. A system may use quorums
-to reduce the chances of conflicts, the drawback is decreased availability when
-a specific quorum can not be reached due to node or network failures \cite{Vogels2009}.
-Quorums are commonly defined by the \textit{N}, \textit{R} and \textit{W} parameters:
-\textit{N} is the replication factor and represents the number of replicas of a given object in the system.
-\textit{R} and \textit{W} are respectively the amount of replicas that need
-to agree on the same value for a read and for a write to be successful.
-$N < R + W$ eliminates the possibility of
-clients reading inconsistent data, since there is an intersection between the
-subsets of replicas for reading and writing.
+the system must implement algorithms for conflict detection and resolution. A
+system may use quorums to reduce the chances of conflicts, the drawback is
+decreased availability when a specific quorum can not be reached due to node or
+network failures \cite{Vogels2009}.  Quorums are commonly defined by the
+\textit{N}, \textit{R} and \textit{W} parameters: \textit{N} is the replication
+factor and represents the number of replicas of a given object in the system.
+\textit{R} and \textit{W} are respectively the amount of replicas that need to
+agree on the same value for a read and for a write to be successful.  $N < R +
+W$ eliminates the possibility of clients reading inconsistent data, since there
+is an intersection between the subsets of replicas for reading and writing.
 
-Reasoning about a web application is simpler under a more strict consistency model. For
-example, an auction site cannot tolerate conflicts in the bidding history of a
-product. In a system using eventual consistency, in case of a failure that
-splits the network in two or more partitions, users acting in each partition will have their
-own view of the bidding history, what is equivalent to two or more simultaneous auctions
-for the same item.
+Reasoning about a web application is simpler under a more strict consistency
+model. For example, an auction site cannot tolerate conflicts in the bidding
+history of a product. In a system using eventual consistency, in case of a
+failure that splits the network in two or more partitions, users acting in each
+partition will have their own view of the bidding history, what is equivalent
+to two or more simultaneous auctions for the same item.
 
-Per-object timeline consistency trades availability for consistency in some situations
-\cite{Cooper2008}. For each stored object, it allows updates only to one of its
-replicas, the master replica. Due to asynchronous replication, replicas may have
-different values due to network latency or network failure, however, at any given moment,
-the most up-to-date replica is known. In every read, clients choose whether to
-accept only the most recent, any value or a specific version of the object. Due to
-the master replica establishing an update ordering to the other replicas, divergences do
-not happen and conflict detection and resolution mechanisms are not needed. The
-main drawback of per-record timeline consistency is that the use of a master replica
-leads to unavailability of writes and most recent reads in the event of a node or network failure
-that renders it unreachable.
+Per-object timeline consistency trades availability for consistency in some
+situations \cite{Cooper2008}. For each stored object, it allows updates only to
+one of its replicas, the master replica. Due to asynchronous replication,
+replicas may have different values due to network latency or network failure,
+however, at any given moment, the most up-to-date replica is known. In every
+read, clients choose whether to accept only the most recent, any value or a
+specific version of the object. Due to the master replica establishing an
+update ordering to the other replicas, divergences do not happen and conflict
+detection and resolution mechanisms are not needed. The main drawback of
+per-record timeline consistency is that the use of a master replica leads to
+unavailability of writes and most recent reads in the event of a node or
+network failure that renders it unreachable.
 
-The highest impact factor in the performance of per-record timeline consistency is the fact
-that consistent operations that are not made in the master replica's data center
-incur the cost of communication over a WAN.  However, the authors of PNUTS
-point that some applications on Yahoo! exhibit access locality up to 85
-\% and write / read ratio as low as 6\% \cite{Kadambi2011, Cooper2008}. 
-A social network application fits this pattern, most users access the application from the
-same geographic location and a post or picture is written once (or edited few times at most)
-but read several times. Thus, in an application in which
-the amount of reads is much greater than the amount of writes, network
-communication costs are low, especially if reads do not necessarily need the
-latest value.
-The authors of PNUTS implemented a simple heuristic by which the master replica migrates to the
-data center that processed the three latest writes of the object. Back to the social network example, this 
-would be the case of a user moving to another country, for example, and starting accessing the system from
-the new place.
+The highest impact factor in the performance of per-record timeline consistency
+is the fact that consistent operations that are not made in the master
+replica's data center incur the cost of communication over a WAN.  However, the
+authors of PNUTS point that some applications on Yahoo! exhibit access locality
+up to 85 \% and write / read ratio as low as 6\% \cite{Kadambi2011,
+Cooper2008}.  A social network application fits this pattern, most users access
+the application from the same geographic location and a post or picture is
+written once (or edited few times at most) but read several times. Thus, in an
+application in which the amount of reads is much greater than the amount of
+writes, network communication costs are low, especially if reads do not
+necessarily need the latest value.  The authors of PNUTS implemented a simple
+heuristic by which the master replica migrates to the data center that
+processed the three latest writes of the object. Back to the social network
+example, this would be the case of a user moving to another country, for
+example, and starting accessing the system from the new place.
 
 %% ------------------------------------------------------------------------- %%
 \section{Experiment Planning}
 
-We performed an experiment to compare the performance of eventual consistency and per-object timeline consistency under different situations. Planning and execution used \cite{Jain1991} as the main
-methodological reference.
+We performed an experiment to compare the performance of eventual consistency
+and per-object timeline consistency under different situations. Planning and
+execution used \cite{Jain1991} as the main methodological reference.
 
 The three techniques available for system performance analysis are simulation,
-analytical modeling and measurement \cite{Jain1991}. We picked measurement, as 33 parameters were
-initially considered for this study (see following section), simulators and models were
-discarded because the needed simplifications to apply them would result in loss of accuracy.
+analytical modeling and measurement \cite{Jain1991}. We picked measurement, as
+33 parameters were initially considered for this study (see following section),
+simulators and models were discarded because the needed simplifications to
+apply them would result in loss of accuracy.
 
-To be able to accurately compare the consistency models without interference
-of software architecture and technology stack factors, the experiment should
-make use of a single system with both consistency models. As no such system has
-been found, we implemented per-record timeline consistency
-in Riak, a free software system which already implements eventual consistency
-\cite{Riak2013}. Besides the new consistency model, we also implemented a
-partitioning algorithm that ensures that there exist at least one replica of
-each object in each data center \cite{DeDiana2013a, DeDiana2013b}.
+To be able to accurately compare the consistency models without interference of
+software architecture and technology stack factors, the experiment should make
+use of a single system with both consistency models. As no such system has been
+found, we implemented per-record timeline consistency in Riak, a free software
+system which already implements eventual consistency \cite{Riak2013}. Besides
+the new consistency model, we also implemented a partitioning algorithm that
+ensures that there exist at least one replica of each object in each data
+center \cite{DeDiana2013a, DeDiana2013b}.
 
-For running the experiments and gathering results, we used the Riak benchmark 
-Basho Bench \cite{BashoBench2013}. We adapted it to be able to run more than
-a single instance simultaneously, with one instance for each data center.
+For running the experiments and gathering results, we used the Riak benchmark
+Basho Bench \cite{BashoBench2013}. We adapted it to be able to run more than a
+single instance simultaneously, with one instance for each data center.
 
 To achieve experiment reproducibility, the use of a real WAN was avoided.
-Instead, the experiments emulated a WAN with the Linux tools
-tc (traffic control) / netem (Network Emulation). These tools provide functionality
-for emulating network characteristics such as latency and packet
-loss. Network settings in Linux were configured according to
-recommended optimizations for WAN communication \cite{ESnet2012}, for example,
-the use of the double of the Bandwidth-Delay Product (BDP) as transmission and
-reception buffer size.
+Instead, the experiments emulated a WAN with the Linux tools tc (traffic
+control) / netem (Network Emulation). These tools provide functionality for
+emulating network characteristics such as latency and packet loss. Network
+settings in Linux were configured according to recommended optimizations for
+WAN communication \cite{ESnet2012}, for example, the use of the double of the
+Bandwidth-Delay Product (BDP) as transmission and reception buffer size.
 
-The experiments were carried out on Grid'5000, a platform for creation, implementation
-and monitoring of parallel and distributed system experiments
+The experiments were carried out on Grid'5000, a platform for creation,
+implementation and monitoring of parallel and distributed system experiments
 \cite{Grid50002013}.
 
 The study used factorial design, which consist of a combination of factors in
-each experiment comprising the study \cite{Jain1991}. The more
-factors and levels in a study, the more resources are needed to its execution.
-Moreover, usually a few factors explain the most effects on the response. Therefore,
-a selection of the most influential factors was performed by the use of
-2\textsuperscript{k} experiments, which consist of the selection of only
-the minimum and maximum levels for each factor, resulting in a total of
+each experiment comprising the study \cite{Jain1991}. The more factors and
+levels in a study, the more resources are needed to its execution.  Moreover,
+usually a few factors explain the most effects on the response. Therefore, a
+selection of the most influential factors was performed by the use of
+2\textsuperscript{k} experiments, which consist of the selection of only the
+minimum and maximum levels for each factor, resulting in a total of
 2\textsuperscript{k} experiments, where \textit{k} is the number of factors.
 
 %% ------------------------------------------------------------------------- %%
 \section{Fixed Parameters}
 
-After defining the experimental design, 33 parameters were listed, 16
-of which were fixed due to resource constraints. It is worth noting that
-LAN parameters were the actual values seeing in the
-cluster network, while WAN parameters were emulated. The fixed parameters and their
-respective values were:
+After defining the experimental design, 33 parameters were listed, 16 of which
+were fixed due to resource constraints. It is worth noting that LAN parameters
+were the actual values seeing in the cluster network, while WAN parameters were
+emulated. The fixed parameters and their respective values were:
 
 \begin{itemize}
 
