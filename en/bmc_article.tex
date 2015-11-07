@@ -497,17 +497,17 @@ benchmark instance.
 
 \end{itemize}
 
-There were 17 remaining candidate factors. Three of them were assembled in a
+There were 17 remaining candidate factors. Three of them were combined in a
 single factor, the mode.
 
 %% ------------------------------------------------------------------------- %%
 \section{Mode}
 
-Three factors have received different treatment during the experiments: consistency
-model, replication configuration (for eventual consistency) and required version for reads (for per-record timeline consistency). This was done because the combinations of
-these factors define storage system configurations that result in different
-local/remote request ratios. Thus, these factors were treated as a single factor,
-\textit{mode}. The modes were:
+Three factors interacted in a particular way, their different combinations
+result in different ratios of local/remote requests. The factors are:
+consistency model, replication configuration (for eventual consistency) and
+required version for reads (for per-record timeline consistency). Thus, these
+factors were treated as a single factor, \textit{mode}. The modes were:
 
 \begin{itemize}
 
@@ -517,23 +517,40 @@ local/remote request ratios. Thus, these factors were treated as a single factor
 
 \item \textit{any}: Per-object timeline consistency with reads of any version
 
-\item \textit{lat}: Per-object timeline consistency with latest version reads
+\item \textit{lat}: Per-object timeline consistency with reads of latest version
 
 \end{itemize}
 
-Whereas the replication factor was set to 3 and the presence of at least one replica
-on each data center was guaranteed, from the client standpoint, two situations were possible with respect to the location
-of replicas: one local and two remote or vice versa. Given that,
-\textit{ev1} resulted in local reads and writes. Mode \textit{ev2} resulted in
-local reads and half remote, half local writes. Mode \textit{any} resulted in
-local reads and the amount of local/remote writes depending on access locality.
-Finally, \textit{lat} resulted in both reads and writes being dependent on location.
+Given a replication factor of 3 and that each data center had one or two
+replicas of each object (never none), two situations were possible from the
+client standpoint with respect to the location of replicas: one local and two
+remote or vice versa. Thus, the proportion of reads and writes for each mode
+were:
 
-These modes involve trade-offs beyond performance and consistency. The main is
-durability which to \textit{ev2} is higher than for other cases in which write
-confirmation of a single replica is sufficient.
+\begin{itemize}
 
-After defining the mode factor, 14 candidate factors remained, too many for the final study. We performed 2\textsuperscript{k} experiments to reduce this amount in an informed way.
+\item \textit{ev1}: all reads and writes could be performed in the local data
+center.
+
+\item \textit{ev2}: all reads and 50\% of writes could be performed in the
+local data center while 50\% of write operations needed to traverse the WAN to
+access the second replica.
+
+\item \textit{any}: all reads could be performed in the local data center and
+the proportion of writes in the local or remote data center depended on data
+access locality.
+
+\item \textit{lat}: both reads and writes depended on data access locality. 
+
+\end{itemize}
+
+It is worth noting that these modes involve other trade-offs than performance
+and consistency. For example, durability is higher for \textit{ev2} than for
+the other modes in which write confirmation of a single replica is sufficient.
+
+After defining the mode factor, 14 candidate factors remained, too many for the
+final study. We performed 2\textsuperscript{k} experiments to reduce this
+amount in an informed way.
 
 %% ------------------------------------------------------------------------- %%
 \section{Selection of Factors}
