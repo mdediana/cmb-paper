@@ -553,44 +553,47 @@ final study. We performed 2\textsuperscript{k} experiments to reduce this
 amount in an informed way.
 
 %% ------------------------------------------------------------------------- %%
-\section{Selection of Factors}
+\section{Factor Selection}
 
-An approach for the selection of factors would group all candidates factors in a
-single 2\textsuperscript{k} experimental study. The problem is that even with
-only two levels by factor, 2\textsuperscript{14} experiments was still a prohibitive number.
+An approach for the selection of factors would group all candidate factors in a
+single 2\textsuperscript{k} experimental study. This approach would not work
+because even considering only two levels by factor, it would lead to
+2\textsuperscript{14} experiments, still prohibitive.
 
-We splitted the experiments into smaller groups of related factors and
-ran experiments for each group separately. With that, comparison between factors of
-different groups and their interactions was lost, however, since most factors
-have shown little influence inside their groups, as shown in the following
-subsections, this approach did not present a threat to validity.
+We splitted the experiments into smaller groups of related factors, assuming
+that unrelated factors would have little to no interaction between them, and
+ran experiments for each group separately. With that, comparison between
+factors of different groups and their interactions was lost. However, since
+most factors have shown little influence inside their groups, as shown in the
+following subsections, this approach did not present a threat to validity.
 
-Most factors were prone to interactions with network factors. The WAN latency in
-particular had been very influential in exploratory studies, fact later confirmed by
-the study of network factors. Given that, the adopted approach was the use of
-WAN latency as a representative of network factors when necessary.
+Most factors were prone to interactions with network factors. The WAN latency
+in particular had been very influential in exploratory studies, fact later
+confirmed by the study of network factors. Given that, we used WAN latency as a
+representative of network factors when necessary.
 
-Cases happened where the results of all experiments of a study were
-similar, regardless of the factor levels. To handle these cases the coefficients
-of variation (CVs) of the responses were calculated to estimate the influence of
-that set of factors and interactions as a whole. Thus, a low CV indicated that
-none of these factors were influential.
+There were cases where the results of all experiments of a study were similar,
+regardless of the factor levels. To handle such cases we used the coefficients
+of variation (CVs) of the responses as an estimate of the influence of that set
+of factors and interactions as a whole. Thus, a low CV indicated that none of
+the factors were influential.
 
-For per-record timeline consistency, only the insertion of objects in the load stage was
-not enough for the system to operate at its steady state during the experiments.
-This happens because, at the end of the load, each object in the database has
-received a single access from each data center, no master replica would have
-migrated yet. Therefore, we implemented a warmup phase between data load and the experiment run according to the locality of the experiment.
+For per-record timeline consistency, we implemented a warmup phase after data
+load and before the experiment. At the end of the load stage each object in the
+database had received a single access from each data center, thus no master
+replicas had migrated yet. So, during the warmup phase, objects were accessed
+according to the locality of the experiment to force master migrations before
+the start of the experiment.
 
-Four intermediate studies were conducted, they are described in the following
-subsections. Whenever mode and locality had to be fixed, they were respectively
-at \textit{lat} and 50\%, values that result in a balanced amount of reads and
-writes, both local and remote. When necessary, latency was fixed at 100 ms. In
-the results, the 10 and 90 percentiles respectively represent local and remote
-requests.
+We conducted four intermediate studies, they are described in the following
+subsections. Whenever mode and locality had to be fixed, they were fixed
+respectively at \textit{lat} and 50\%, values that result in a balanced amount
+of reads and writes, both local and remote. When necessary, latency was fixed
+at 100 ms. In the results, the 10 and 90 percentiles represent respectively
+local and remote requests.
 
 %% ------------------------------------------------------------------------- %%
-\subsection{System and benchmark size factors}
+\subsection{System size and benchmark size factors}
 
 The number of nodes and benchmark instances not only influenced the
 responses, it also influenced operational issues related to node reservation --
@@ -653,8 +656,8 @@ and operational difficulties due to the Grid'5000 rules.
 %% ------------------------------------------------------------------------- %%
 \subsection{Database factors}
 
-The database size affected memory
-usage and bandwidth comsumption in the nodes. The levels used in the study were:
+The database size would affect memory usage and bandwidth comsumption in the
+nodes. The levels used in the study were:
 
 \begin{itemize}
 
@@ -698,12 +701,12 @@ Given the results, the fixed values were:
 
 \end{itemize}
 
-The warmup time depended on the number of stored objects, thus the lower the
-number, the faster the execution of experiments.  Conversely, a too small number
-would result in an excessive number of conflicts.  For the size of stored
-objects, the value was chosen based on a study of caching systems on Facebook,
-which reports that 90\% of the objects are smaller than 500 bytes
-\cite{Atikoglu2012}.
+The number of stored objects influenced the warmup time, thus the lower the
+number, the faster the execution of experiments. Conversely, a too small number
+would result in an excessive number of conflicts for eventual consistency. For
+the size of stored objects, the value was chosen based on a study of caching
+systems on Facebook, which reports that 90\% of the objects are smaller than
+500 bytes \cite{Atikoglu2012}.
 
 %% ------------------------------------------------------------------------- %%
 \subsection{Network factors}
@@ -727,10 +730,10 @@ most important for the factor selection. The levels were as follows:
 
 \end{itemize}
 
-Latency levels were based on a study that reports the latencies between regions
-of the Amazon Web Services \cite{Sovran2011}, in which the lowest latency
-between data centers in each U.S. coast was 82 ms and the highest was 277 ms
-between Ireland and Singapore.
+Latency levels were based on a study reporting latencies between regions of the
+Amazon Web Services \cite{Sovran2011}, in which the lowest latency between data
+centers in each U.S. coast was 82 ms and the highest was 277 ms between Ireland
+and Singapore.
 
 Project PingER served as the basis for other factors \cite{PingER2013}. In
 January 2013, it shows an average latency of 238.062 ms with standard deviation
@@ -741,14 +744,14 @@ for duplication and reordering were higher than those observed by PingER, yet
 they did not influence the response.
 
 Both H-TCP and CUBIC were designed with a focus on high bandwidth, high latency
-networks (high BDP), and were chosen because they are cited in references on TCP
-tuning for WANs \cite{ESnet2012}.
+networks (high BDP), and appear in references about TCP tuning for WANs
+\cite{ESnet2012}.
 
-In the emulated network, latency defines the minimum level and jitter the maximum
-value that latency can reach. For example, when latency is configured as 100ms and variation
-as 60\%, the emulator generates latency values between 100 ms and 160 ms. The
-generated values followed the normal distribution within the specified range of
-latency.
+In the emulated network, latency defines the minimum level and jitter defines
+the maximum value that latency can reach. For example, when latency is
+configured as 100 ms and variation as 60\%, the emulator generates latency
+values between 100 ms and 160 ms. The generated values followed the normal
+distribution within the specified range of latency.
 
 The result of the study is presented in Table
 \ref{tab:estudo_para_fatores_de_rede}, columns of interactions between factors
@@ -782,7 +785,7 @@ these factors were:
 \end{itemize}
 
 Latency and jitter at zero are equivalent to having the entire system operating
-on a LAN. The results obtained in these cases were used as aid in the
+over a LAN. The results obtained in these cases were used as aid in the
 interpretation of other results, but were not considered in the final study.
 
 The fixed values of the disregarded factors were:
@@ -802,15 +805,15 @@ The fixed values of the disregarded factors were:
 %% ------------------------------------------------------------------------- %%
 \subsection{Workload factors}
 
-This was one of the most important studies along with the network factors one.
-The levels used were as follows:
+Along with network factors, this was one of the most important studies. The
+levels used were as follows:
 
 \begin{itemize}
 
 \item Read / write ratio (R): 2:1 and 10:1
 
-\item Object popularity (P): uniform (the request arrival rate average for each
-object is the same) and skewed (arrival rate follows a Pareto
+\item Object popularity (P): uniform (the average of the request arrival rate
+for each object is the same) and skewed (the arrival rate follows a Pareto
 distribution)
 
 \item Locality (X): 50\% (no locality) and 90\% (90\% of accesses to a given
@@ -818,22 +821,23 @@ object coming from one data center and 10\% from the other)
 
 \end{itemize}
 
-As the modes behave differently depending on locality, we performed one set of experiments for each mode.
+As the modes behave differently depending on locality, we performed one set of
+experiments for each mode.
 
-The read/write ratio and locality did not use percentiles, they use response
-time average of reads and writes instead. The first factor
-relates to the composition between reads and writes, while the second alters the
-composition between local and remote requests, so these factors do not make
-sense in percentiles separated by request type. For example, 50\% locality means
-that the 70th percentile is remote requests, while with 90\% locality the same
-percentile represents local requests. If the analysis was performed by
-percentile, this location information would be lost and locality would never
-have any influence.
+The read/write ratio and locality did not use percentiles, they used the
+average of response times for reads and writes instead. The read/write ratio
+relates to the composition between reads and writes, while locality alters
+the composition between local and remote requests, so these factors did not
+make sense in percentiles separated by request type. For example, 50\% locality
+means that the 70th percentile is remote requests, while with 90\% locality the
+same percentile represents local requests. If the analysis was performed based
+off percentiles, this location information would be lost and locality would
+never have any influence.
 
 The result of the study is shown in Table
-\ref{tab:estudo_para_fatores_de_carga_de_trabalho}, in which all columns with
-all rows with cells smaller than 5\% were removed for the sake of space. The results for local
-requests showed CVs around 2\% for all modes, indicating that none of the
+\ref{tab:estudo_para_fatores_de_carga_de_trabalho}, in which columns with all
+values smaller than 5\% were removed for the sake of space. The results for
+local requests showed CVs around 2\% for all modes, indicating that none of the
 factors influenced local requests.
 
 \begin{table}[h!]
@@ -854,20 +858,21 @@ Mode & R & X & P & L & RX & RL & XL & PL & XPL\\\hline
 \label{tab:estudo_para_fatores_de_carga_de_trabalho}
 \end{table}
 
-As expected, locality and latency influenced responses in general. The impact of
-popularity of objects is virtually nil. Although some modes were apparently
+As expected, locality and latency influenced responses in general. The impact
+of popularity of objects is virtually nil. Although some modes were apparently
 impacted by read/write ratio, this impact was a consequence of the relationship
 between local and remote requests. For \textit{ev1}, both reads and writes are
-local and the read/write ratio and their interactions with other factors have little impact in this mode. For \textit{lat}, reads and writes are local or remote
-depending on locality and read/write ratio does not impact this mode. For
-\textit{ev2}, all reads are local and half of writes are remote, therefore when
-the read/write ratio changes, the ratio between local and remote requests
-changes proportionally -- as expected, this mode is impacted by the read/write ratio.
-The same observation holds for \textit{any}, which has all reads local and
-writes depending on locality, and has also impacted the read/write ratio. The
-read/write ratio would likely influence the response if the storage mechanism
-was disk instead of memory, since writes would be affected by the write
-time to disk, while reads could be faster due to disk caching.
+local and the read/write ratio and their interactions with other factors have
+little impact in this mode. For \textit{lat}, reads and writes are local or
+remote depending on locality and read/write ratio does not impact this mode.
+For \textit{ev2}, all reads are local and half of writes are remote, therefore
+when the read/write ratio changes, the ratio between local and remote requests
+changes proportionally -- as expected, this mode is impacted by the read/write
+ratio. The same observation holds for \textit{any}, for which all reads are
+local and writes depend on locality, so it is impacted by the read/write ratio.
+The read/write ratio would likely influence the response if the storage
+mechanism was disk instead of memory, since writes would be affected by the
+write time to disk, while reads could be faster due to disk caching.
 
 Therefore, only locality was selected as a factor:
 
