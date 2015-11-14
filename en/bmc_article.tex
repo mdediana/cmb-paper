@@ -196,9 +196,9 @@ they apply.
 
 Here we show that under certain workloads and network conditions, a storage
 system exhibits similar performance for both consistency models. The
-experimental results confirm that a system using per-object timeline consistency
+experimental results confirm that a system under per-object timeline consistency
 and exhibiting high data locality and read/write ratios suffer a low performance
-hit compared to the same system using eventual consistency. This comparative
+hit compared to the same system under eventual consistency. This comparative
 helps developers and system administrators on cost estimates and capacity
 planning of large-scale systems.
 %\parttitle{First part title} %if any
@@ -261,10 +261,9 @@ planning of large-scale systems.
 
 \section{Introduction}
 
-To continuously serve users spread around the globe with low response times,
-large-scale web systems replicate data across several servers, which servers are
-spread over multiple data centers located in different geographical locations,
-linked by wide area networks (WANs). Such structure poses challenges to
+To continuously serve users world-wide with low response times, large-scale web
+systems replicate data across servers spread over multiple data centers located
+in different geographical locations. Such structure poses challenges to
 maintaining the consistency among the replicas, mainly due to network latencies
 and node / network failures.
 
@@ -273,7 +272,7 @@ consistency, performance and availability. Several consistency models have been
 described in the literature, each of them defining a different set of
 conditions, guarantees and trade-offs. A common decision in large-scale systems
 is the use of more relaxed consistency models to achieve low latency and high
-availability.  However, inconsistencies are more likely to happen with more
+availability. However, inconsistencies are more likely to happen with more
 relaxed consistency models.
 
 Eventual consistency is a more relaxed consistency model which has become
@@ -298,34 +297,34 @@ will lead up to divergent bidding histories. Furthermore, developers of
 applications with less strict availability requirements can benefit from simpler
 assumptions when programming.
 
-Per-object timeline consistency is a middle ground between linearizability
-\cite{Herlihy1990} and eventual consistency. It was first implemented in the
-PNUTS database system, developed by Yahoo! \cite{Cooper2008}. Under this
-consistency model, each object has a master replica, which is the only replica
-allowed to apply updates. By serializing updates in the master replica,
-conflicts among replicas cannot happen since every replica receive the updates
-in the same order. Moreover, the most recent value is known at any time, it is
-the value stored in the master replica. However, since updates are asynchronous,
-stale reads due to latency can happen. Objects are versioned and read requests
-carry the required version, which can be a specific version, the most recent
-(served exclusively by the master) or any version. The main drawback of
-per-record timeline consistency is that updates and most recent reads become
-unavailable in case of a failure preventing the communication between a client
-and the master replica.
+Per-object timeline consistency stays inr the middle ground between
+linearizability \cite{Herlihy1990} and eventual consistency. It was first
+implemented in the PNUTS database system, developed by Yahoo!
+\cite{Cooper2008}. Under this consistency model, each object has a master
+replica, which is the only replica allowed to apply updates. By serializing
+updates in the master replica, conflicts among replicas cannot happen since
+every replica receive the updates in the same order. Moreover, the most recent
+value is known at any time, it is the value stored in the master replica.
+However, since updates are asynchronous, stale reads due to latency can happen.
+Objects are versioned and read requests carry the required version, which can
+be a specific version, the most recent (served exclusively by the master) or
+any version. The main drawback of per-record timeline consistency is that
+updates and most recent reads become unavailable in case of a failure
+preventing the communication between a client and the master replica.
 
 Per-object timeline consistency may be a better fit than eventual consistency
 for web applications where users tolerate some level of unavailability. Also,
 besides availability, performance must also be considered. The main performance
 hit in per-record timeline consistency is due to the cost of updates and
-consistent reads when the request must traverse a WAN to reach the master
-replica in another data center. However, specific conditions may alleviate this
-issue, such as high access locality rates and high read/write ratios. In fact,
-PNUTS authors observed up to 85\% locality rate and 94\% of read/write ratio in
-a study of Yahoo's applications \cite{Cooper2008, Kadambi2011}. Based on that,
-they implemented heuristics that improve per-record timeline consistency
-performance.
+consistent reads when the request must traverse a wide-area network (WAN) to
+reach the master replica in another data center. However, specific conditions
+may alleviate this issue, such as high access locality rates and high
+read/write ratios. In fact, PNUTS authors observed up to 85\% locality rate and
+94\% of read/write ratio in a study of Yahoo's applications \cite{Cooper2008,
+Kadambi2011}. Based on that, they implemented heuristics that improve
+per-record timeline consistency performance.
 
-This study compares the performance of a geo-replicated storage system using
+This study compared the performance of a geo-replicated storage system under
 eventual consistency and per-record timeline consistency under different
 workloads and network conditions. The results make a useful resource for
 developers and system administrators estimating system development costs and
@@ -350,7 +349,7 @@ is an intersection between the subsets of replicas for reading and writing.
 
 Reasoning about a web application is simpler under a more strict consistency
 model. For example, an auction site cannot tolerate conflicts in the bidding
-history of a product. In a system using eventual consistency, in case of a
+history of a product. In a system under eventual consistency, in case of a
 failure that splits the network in two or more partitions, users acting in each
 partition will have their own view of the bidding history, what is equivalent
 to two or more simultaneous auctions for the same item.
@@ -945,6 +944,22 @@ the same.
 \end{figure}
 
 %% ------------------------------------------------------------------------- %%
+\section{Discussion}
+
+The main advantages of per-record timeline consistency over eventual
+consistency are the guarantee that conflicting updates do not occur and that
+the location of the most recent value is known -- the master. An interesting
+scenario for its use is the case where the application tolerates staleness for
+most of its reads, but needs the most recent value for a few. Per-object
+timeline consistency main drawbacks are that writes and ``most recent'' become
+unavailable if the master replica is unavailable and its relatively high
+response time variability. For applications where response time requirements
+are on the 99.9 percentile, such as Amazon \cite{DeCandia2007}, per-record
+timeline consistency is not appropriate.
+
+development costs and capacity planning
+
+%% ------------------------------------------------------------------------- %%
 \section{Threats to Validity}
 
 Some parameters were fixed and influential parameters were disregarded. Thus,
@@ -985,7 +1000,7 @@ The different consistency options in Cassandra and the resulting availability
 and performance were analyzed in \cite{Beyer2011}, the conclusion is that
 more strict consistency models perform worse. Performance and availability of
 master-slave replication and chain replication are compared in
-\cite{vanRenesse2004}, each of them using strong consistency and eventual
+\cite{vanRenesse2004}, each of them under strong consistency and eventual
 consistency. None of these studies consider operation over WANs or different
 workloads.
 
@@ -999,23 +1014,12 @@ LAN, not a WAN.
 %% ------------------------------------------------------------------------- %%
 \section{Conclusions}
 
-This study compared the performance of a storage system operating over a WAN
-using two different consistency models. It also showed results about the
-influence of different factors and their interactions on the system
-performance. The results show that per-object timeline consistency is
-competitive to eventual consistency when write locality is high and when stale
-reads are an option.
-
-The main advantages of per-record timeline consistency over eventual
-consistency are the guarantee that conflicting updates do not occur and that
-the location of the most recent value is known -- the master. An interesting
-scenario for its use is the case where the application tolerates staleness for
-most of its reads, but needs the most recent value for a few. Per-object
-timeline consistency main drawbacks are that writes and ``most recent'' become
-unavailable if the master replica is unavailable and its relatively high
-response time variability. For applications where response time requirements
-are on the 99.9 percentile, such as Amazon \cite{DeCandia2007}, per-record
-timeline consistency is not appropriate.
+Developers and administrators trade-off between consistency, performance and
+availability to meet the requirements of large-scale web application. This
+study compared the performance of a storage system operating over a WAN under
+two different consistency models. The results show that per-object timeline
+consistency is competitive with eventual consistency when write locality is
+high and when stale reads are an option.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                          %%
