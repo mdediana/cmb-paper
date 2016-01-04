@@ -196,13 +196,13 @@ they apply.
 
 Here we show that under certain workloads and network conditions, a storage
 system exhibits similar performance for both consistency models. The
-experimental results confirm that a system under per-object timeline consistency
-and exhibiting high data locality and read/write ratios suffer a low performance
-hit compared to the same system under eventual consistency. This comparative
-helps developers and system administrators on cost estimates and capacity
-planning of large-scale systems.
-%\parttitle{First part title} %if any
-%Text for this section.
+experimental results confirm that a system under per-object timeline
+consistency suffer a low performance hit compared to the same system under
+eventual consistency if it exhibits high data locality and read/write ratios.
+This comparative presents resources for storage system developers and
+applications built over them about the viability of a consistency moderl other
+than eventual consistency for large-scale systems.
+%\parttitle{First part title} %if any Text for this section.
 
 %\parttitle{Second part title} %if any
 %Text for this section.
@@ -282,7 +282,7 @@ the same value at some moment in the future. As long as updates are occurring,
 replicas may be inconsistent and clients may read stale or divergent values
 depending on which replica processes a given request. From that comes the need
 for the application to implement conflict resolution mechanisms and compensation
-actions to handle the results of actions taken based on inconsistent state. The
+actions to correct results of actions taken based on inconsistent states. The
 added complexity negatively affects code maintainability and system operations.
 
 Some web applications strictly require high availability levels. For example,
@@ -297,7 +297,7 @@ will lead up to divergent bidding histories. Furthermore, developers of
 applications with less strict availability requirements can benefit from simpler
 assumptions when programming.
 
-Per-object timeline consistency stays inr the middle ground between
+Per-object timeline consistency stays in a middle ground between
 linearizability \cite{Herlihy1990} and eventual consistency. It was first
 implemented in the PNUTS database system, developed by Yahoo!
 \cite{Cooper2008}. Under this consistency model, each object has a master
@@ -313,22 +313,18 @@ updates and most recent reads become unavailable in case of a failure
 preventing the communication between a client and the master replica.
 
 Per-object timeline consistency may be a better fit than eventual consistency
-for web applications where users tolerate some level of unavailability. Also,
-besides availability, performance must also be considered. The main performance
+for web applications where users tolerate some level of unavailability.
+Besides availability, performance must also be considered. The main performance
 hit in per-record timeline consistency is due to the cost of updates and
 consistent reads when the request must traverse a wide-area network (WAN) to
 reach the master replica in another data center. However, specific conditions
 may alleviate this issue, such as high access locality rates and high
-read/write ratios. In fact, PNUTS authors observed up to 85\% locality rate and
-94\% of read/write ratio in a study of Yahoo's applications \cite{Cooper2008,
-Kadambi2011}. Based on that, they implemented heuristics that improve
-per-record timeline consistency performance.
+read/write ratios.
 
 This study compared the performance of a geo-replicated storage system under
 eventual consistency and per-record timeline consistency under different
 workloads and network conditions. The results make a useful resource for
-developers and system administrators estimating system development costs and
-doing capacity planning.
+developers of large-scale storage systems and the applications that use them.
 
 %% ------------------------------------------------------------------------- %%
 \section{Eventual Consistency and Per-record Timeline Consistency}
@@ -347,12 +343,12 @@ agree on the same value for a read and for a write to be successful.  $N < R +
 W$ eliminates the possibility of clients reading inconsistent data, since there
 is an intersection between the subsets of replicas for reading and writing.
 
-Reasoning about a web application is simpler under a more strict consistency
-model. For example, an auction site cannot tolerate conflicts in the bidding
-history of a product. In a system under eventual consistency, in case of a
-failure that splits the network in two or more partitions, users acting in each
-partition will have their own view of the bidding history, what is equivalent
-to two or more simultaneous auctions for the same item.
+Some web applications cannot tolerate conflicts, such as an auction site, where
+the bidding history of a product must be unique to all users at all times. In
+a system under eventual consistency, in case of a failure that splits the
+network in two or more partitions, users acting in each partition will have
+their own view of the bidding history, what is equivalent to two or more
+simultaneous auctions for the same item.
 
 Per-object timeline consistency trades availability for consistency in some
 situations \cite{Cooper2008}. For each stored object, it allows updates only to
@@ -369,16 +365,16 @@ network failure that renders it unreachable.
 
 The highest impact factor in the performance of per-record timeline consistency
 is the fact that consistent operations that are not made in the master
-replica's data center incur the cost of communication over a WAN.  However, the
+replica's data center incur the communication cost over a WAN. However, the
 authors of PNUTS point that some applications on Yahoo! exhibit access locality
 up to 85 \% and write / read ratio as low as 6\% \cite{Kadambi2011,
-Cooper2008}.  A social network application fits this pattern, most users access
+Cooper2008}. A social network application fits this pattern, most users access
 the application from the same geographic location and a post or picture is
 written once (or edited few times at most) but read several times. Thus, in an
 application in which the amount of reads is much greater than the amount of
-writes, network communication costs are low, especially if reads do not
-necessarily need the latest value.  The authors of PNUTS implemented a simple
-heuristic by which the master replica migrates to the data center that
+writes, network communication costs are low on average, especially if reads do
+not necessarily need the latest value. The PNUTS developers implemented a
+simple heuristic by which the master replica migrates to the data center that
 processed the three latest writes of the object. Back to the social network
 example, this would be the case of a user moving to another country, for
 example, and starting accessing the system from the new place.
@@ -523,7 +519,7 @@ factors were treated as a single factor, \textit{mode}. The modes were:
 Given a replication factor of 3 and that each data center had one or two
 replicas of each object (never none), two situations were possible from the
 client standpoint with respect to the location of replicas: one local and two
-remote or vice versa. Thus, the proportion of reads and writes for each mode
+remote or vice versa. Thus, the proportions of reads and writes for each mode
 were:
 
 \begin{itemize}
@@ -532,18 +528,18 @@ were:
 center.
 
 \item \textit{ev2}: all reads and 50\% of writes could be performed in the
-local data center while 50\% of write operations needed to traverse the WAN to
-access the second replica.
+local data center while the other 50\% of write operations needed to traverse
+the WAN to access the second replica.
 
 \item \textit{any}: all reads could be performed in the local data center and
-the proportion of writes in the local or remote data center depended on data
+the proportion of writes in the local / remote data center depended on data
 access locality.
 
 \item \textit{lat}: both reads and writes depended on data access locality. 
 
 \end{itemize}
 
-It is worth noting that these modes involve other trade-offs than performance
+It is worth noting that these modes involve trade-offs other than performance
 and consistency. For example, durability is higher for \textit{ev2} than for
 the other modes in which write confirmation of a single replica is sufficient.
 
@@ -569,9 +565,9 @@ following subsections, this approach did not present a threat to validity.
 Most factors were prone to interactions with network factors. The WAN latency
 in particular had been very influential in exploratory studies, fact later
 confirmed by the study of network factors. Given that, we used WAN latency as a
-representative of network factors when necessary.
+proxy for network factors when necessary.
 
-There were cases where the results of all experiments of a study were similar,
+In some cases, the results of all experiments of a study were similar
 regardless of the factor levels. To handle such cases we used the coefficients
 of variation (CVs) of the responses as an estimate of the influence of that set
 of factors and interactions as a whole. Thus, a low CV indicated that none of
@@ -595,11 +591,10 @@ local and remote requests.
 \subsection{System size and benchmark size factors}
 
 The number of nodes and benchmark instances not only influenced the
-responses, it also influenced operational issues related to node reservation --
+responses, they also influenced operational issues related to node reservation --
 by Grid'5000 rules, the greater the number of reserved nodes, the smaller the
 reservation time. Therefore, a study was done to determine the influence of
-these factors. We used the following levels, the value in parentheses
-being the identifier of the factor in the tables with results below:
+these factors. We used the following levels:
 
 \begin{itemize}
 
@@ -735,8 +730,8 @@ centers in each U.S. coast was 82 ms and the highest was 277 ms between Ireland
 and Singapore.
 
 Project PingER served as the basis for other factors \cite{PingER2013}. In
-January 2013, it shows an average latency of 238.062 ms with standard deviation
-142.996 ms, resulting in a jitter of 60\%. The previous 11 months show similar
+January 2013, it shows an average latency of 238.06~ms with standard deviation
+143.00~ms, resulting in a jitter of 60\%. The previous 11 months show similar
 figures. The median packet loss rate was 0.178\%. The average packet
 duplication rate in January 2013 was 0.006\%. The values used in the experiment
 for duplication and reordering were higher than those observed by PingER, yet
@@ -756,7 +751,8 @@ The result of the study is presented in Table
 \ref{tab:estudo_para_fatores_de_rede}, columns of interactions between factors
 with all cells less than 1\% were suppressed for the sake of space. The
 responses of local requests showed CVs of 1\%, so their rows were also
-suppressed -- which indicates that WAN does not affect local requests.
+suppressed -- which indicates that WAN does not affect local requests, as
+expected.
 
 \begin{table}[h!] 
 \caption{Network factors study.} \label{tab:estudo_para_fatores_de_rede}
@@ -805,7 +801,7 @@ The fixed values of the disregarded factors were:
 \subsection{Workload factors}
 
 Along with network factors, this was one of the most important studies. The
-levels used were as follows:
+levels were as follows:
 
 \begin{itemize}
 
@@ -825,13 +821,13 @@ experiments for each mode.
 
 The read/write ratio and locality did not use percentiles, they used the
 average of response times for reads and writes instead. The read/write ratio
-relates to the composition between reads and writes, while locality alters
-the composition between local and remote requests, so these factors did not
-make sense in percentiles separated by request type. For example, 50\% locality
-means that the 70th percentile is remote requests, while with 90\% locality the
-same percentile represents local requests. If the analysis was performed based
-off percentiles, this location information would be lost and locality would
-never have any influence.
+relates to the composition between reads and writes, while locality alters the
+composition between local and remote requests, so these factors did not make
+sense in percentiles separated by request type. For example, the same 70th
+percentile corresponds to remote requests at a 50\% locality but corresponds to
+local requests at a 90\% locality. If the analysis was performed based off
+percentiles, this location information would be lost and locality would never
+have any influence.
 
 The result of the study is shown in Table
 \ref{tab:estudo_para_fatores_de_carga_de_trabalho}, in which columns with all
@@ -956,7 +952,7 @@ high.
 
 If data locality is low (50\%), the performance of per-object timeline
 consistency is only comparable to eventual consistency for reads of any
-version, performance is hit for ``most recent'' reads and writes.
+version, performance is hit for most recent reads and writes.
 Per-object timeline consistency becomes an interesting option when data
 locality is high (90\%), since most of reads and writes are local. Given that
 reads of any version perform well under low data locality, per-object timeline
@@ -974,7 +970,7 @@ consistency are the guarantee that conflicting updates do not occur and that
 the location of the most recent value is known at all times. An interesting
 scenario for its use is the case where the application tolerates staleness for
 most of its reads, but needs the most recent value for a few. Per-object
-timeline consistency main drawbacks are that writes and ``most recent'' reads
+timeline consistency main drawbacks are that writes and most recent reads
 become unavailable if the master replica is unavailable and its relatively high
 response time variability.
 
@@ -982,12 +978,13 @@ Reasoning about an application under per-object timeline consistency is easier
 than under eventual consistency. Implementing per-object timeline consistency
 in a storage system is less complex than eventual consistency since no conflict
 detection and resolution mechanisms are necessary. This impact the cost of
-development and maintenance of storage systems and applications. The only
-system implementing per-object timeline consistency is PNUTS, which is not
-distributed outside Yahoo!. This opens an opportunity for companies or the open
-source community to provide this consistency model in new or existing systems.
+development and maintenance of storage systems and the applications that use
+them. The only system implementing per-object timeline consistency is PNUTS,
+which is not available outside Yahoo!. This opens up an opportunity for
+companies or the open source community to provide this consistency model in new
+or existing systems.
 
-A final contribution of this work, especially to the research community, is its
+Another contribution of this work, especially for the research community, is its
 detailed experimental design. By conducting formal factor and level selections,
 we have a better understanding of the reliability and the limitations of the
 findings.
@@ -1052,8 +1049,8 @@ LAN, not a WAN.
 %% ------------------------------------------------------------------------- %%
 \section{Conclusions}
 
-Developers and administrators trade-off between consistency, performance and
-availability to meet the requirements of large-scale web application. This
+Developers and system administrators trade-off between consistency, performance
+and availability to meet the requirements of large-scale web application. This
 study compared the performance of a storage system operating over a WAN under
 two different consistency models. The results show that per-object timeline
 consistency is competitive with eventual consistency when write locality is
