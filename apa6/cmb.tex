@@ -1,0 +1,1012 @@
+%%
+%% This is file `./samples/longsample.tex',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% apa6.dtx  (with options: `longsample')
+%% ----------------------------------------------------------------------
+%% 
+%% apa6 - A LaTeX class for formatting documents in compliance with the
+%% American Psychological Association's Publication Manual, 6th edition
+%% 
+%% Copyright (C) 2011-2014 by Brian D. Beitzel <brian at beitzel.com>
+%% 
+%% This work may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License (LPPL), either
+%% version 1.3c of this license or (at your option) any later
+%% version.  The latest version of this license is in the file:
+%% 
+%% http://www.latex-project.org/lppl.txt
+%% 
+%% Users may freely modify these files without permission, as long as the
+%% copyright line and this statement are maintained intact.
+%% 
+%% This work is not endorsed by, affiliated with, or probably even known
+%% by, the American Psychological Association.
+%% 
+%% ----------------------------------------------------------------------
+%% 
+\documentclass[man,floatsintext,12pt]{apa6}
+
+\usepackage[american]{babel}
+
+\usepackage{csquotes}
+\usepackage[style=apa,sortcites=true,sorting=nyt,backend=biber,doi=false]{biblatex}
+\DeclareLanguageMapping{american}{american-apa}
+\addbibresource{cmb.bib}
+
+\title{Comparing the Performance of Eventual Consistency and Per-record
+Timeline Consistency in Geo-replicated Systems}
+\shorttitle{Consistency Models in Geo-replicated Systems}
+
+\author{Mauricio De Diana, Marco Aur\'{e}lio Gerosa}
+\affiliation{Computer Science Department, University of S\~{a}o Paulo}
+
+\leftheader{De Diana, Gerosa}
+
+\abstract{Large-scale web systems use data replication among data centers to achieve high
+levels of performance and availability, trading off these attributes against
+consistency. Consistency models define the consistency guarantees that a system
+provides and its trade-offs. Eventual consistency is a more relaxed consistency
+model, widely adopted in large-scale systems. By its turn, the less popular
+per-record timeline consistency strikes a better balance when requirements over
+consistency are more restrictive. However, to be able to make a decision,
+developers need to understand its performance penalties and the situations when
+they apply.
+
+In this paper, we show that under certain workloads and network conditions, a
+storage system exhibits similar performance for both consistency models. The
+experimental results confirm that a system under per-record timeline
+consistency suffer a low performance hit compared to the same system under
+eventual consistency if it exhibits high data locality and read/write ratios.
+This comparative presents resources for developers of storage systems and
+web applications about the viability of a consistency model other
+than eventual consistency for large-scale systems.}
+
+\keywords{distributed systems, consistency models, large scale web systems,
+performance analysis, data center}
+
+\authornote{Mauricio De Diana, Computer Science Department,
+  University of S\~{a}o Paulo.
+  Marco Aur\'{e}lio Gerosa, Computer Science Department,
+  University of S\~{a}o Paulo.
+
+  Correspondence concerning this article should be addressed to
+  Mauricio De Diana, Computer Science Department, University of
+  S\~{a}o Paulo, R. do Mat\~{a}o, 1010 - Vila Universit\'{a}ria,
+  S\~{a}o Paulo - SP - Brazil.  E-mail: mdediana@ime.usp.br
+
+  Experiments presented in this paper were carried out using the Grid'5000
+  experimental testbed, being developed under the INRIA ALADDIN development
+  action with support from CNRS, RENATER and several Universities as well as
+  other funding bodies.
+}
+
+\usepackage{url}
+
+\usepackage{graphicx}
+\graphicspath{{./figuras/}}
+
+\begin{document}
+\maketitle
+\section{Introduction}
+
+To continuously serve users world-wide with low response times, large-scale web
+systems replicate data across servers spread over multiple data centers located
+in different geographical locations. Such structure poses challenges to
+maintaining the consistency among the replicas, mainly due to network latencies
+and node / network failures.
+
+Developers and administrators of such systems need to seek a balance between
+consistency, performance and availability. Several consistency models have been
+described in the literature, each of them defining a different set of
+conditions, guarantees and trade-offs related to consistency, performance and
+availability. A common decision in large-scale systems is the use of more
+relaxed consistency models to achieve low latency and high availability.
+However, inconsistencies are more likely to happen with more relaxed
+consistency models.
+
+Eventual consistency is a more relaxed consistency model which gained
+popularity with the publication of the Dynamo paper \parencite{DeCandia2007}.  A
+system using eventual consistency is highly available, tolerating both node and
+network failures at the cost of the possibility serving conflicting values to
+clients. Eventual consistency guarantees that replicas are going to converge at
+some moment, but they may be inconsistent over some time periods. To deal with
+inconsistencies, a system must implement conflict detection and resolution
+mechanisms.
+
+Some web applications strictly require high availability levels. For example,
+e-commerce web sites need its users to be able to add items to their shopping
+carts even if this leads to errors that must be handled afterwards
+\parencite{DeCandia2007}. However, eventual consistency is not appropriate for every
+case, there are applications that need stronger consistency models. An example
+is a bidding application that cannot have conflicts on bidding history. If
+eventual consistency is used and a network partition happens, users bidding on
+different sides of the partition will lead up to divergent bidding histories.
+Furthermore, developers of applications with less strict availability
+requirements can benefit from simpler assumptions when programming. When a
+conflict happens in an eventual consistent storage system, it is the
+application developer's responsibility to write code that will resolve the
+conflict.
+
+Per-record timeline consistency, implemented in the PNUTS database system
+developed by Yahoo! \parencite{Cooper2008}, may be a better fit than eventual
+consistency when the application needs stricter consistency and users can
+tolerate some unavailability. This consistency model uses a master replica for
+writes to guarantee that conflicts do not happen. The use of a master replica
+to keep consistency means that operations become unavailable in case of
+failures that prevent access to it. To improve read performance over a WAN,
+clients may trade off consistency for performance and read the data from a
+replica closer to them than the master. For write performance, PNUTS implements
+heuristics that try to move the master closer to its clients.
+
+The literature does not have other main references to per-record timeline
+consistency other than the PNUTS paper \parencite{Cooper2008}. Also, no
+implementations were found, except for the one described in the same paper,
+which is not available outside Yahoo!. However, a class of web applications
+could benefit from large-scale storage systems implementing this consistency
+model if it is shown to be as efficient as eventual consistency in particular
+situations. In this work, based off descriptions on the PNUTS paper, we
+implemented per-record timeline consistency in a storage system and
+investigated under which workloads and network conditions it has similar
+performance as the same system using eventual consistency. The comparison was
+carried out through a formal experimental study. It started as a list of 33
+parameters. After fixing some due to resource constraints and eliminating
+others by factor selection studies, we ended up with a list of the factors that
+mostly influence the performance of a geo-replicated system. The final study
+used the six most influential factors to find the situations where per-record
+timeline consistency has similar performance than eventual consistency. The
+results make a useful resource for developers of large-scale web applications.
+
+%% ------------------------------------------------------------------------- %%
+\section{Eventual Consistency and Per-record Timeline Consistency}
+
+A consistency model defines the moment when the results of a write will be
+returned by subsequent reads. From a developer's standpoint, a consistency
+model defines the global order in which operations on data appear to be
+executed \parencite{Adve1995}. Stricter consistency models favor system
+maintainability, since they make it easier for a developer to reason about the
+system. The rigidity in a consistency model is given by restrictions in the
+order of operations on data. The larger the restrictions on ordering of
+operations, the more complex is the protocol to guarantee them. Protocols that
+provide more guarantees present lower performance \parencite{Mosberger1993}.
+
+Besides influencing maintainability, a consistency model defines other
+properties with well known and proven trade-offs. The CAP theorem states that a
+distributed system can only show two out of three properties: consistency (C),
+availability (A), and partition tolerance (P) \parencite{Brewer2000,Gilbert2002}.
+Both availability and partition tolerance appear to a client of the system as
+the ability to carry through operations, so a highly-available system must
+present both and thus tolerate some level of inconsistency. The CAP theorem
+makes clear the trade-offs involved in case of failure, however, there are also
+trade-offs under system's normal operation. PACELC is a way of looking into
+these trade-offs, it states that if operating under a partition (P), a
+distributed system must trade off between availability (A) or consistency (C),
+else (E), it trades off between latency (L) or consistency (C)
+\parencite{Abadi2012}. Therefore, PACELC not only presents another reason to
+tolerate inconsistencies in a distributed system as it also shows that a system
+may have different sets of trade-offs depending on whether it is operating in
+the presence of network partitions or not.
+
+To achieve high availability, any replica of a given object in an eventually
+consistent systems accepts writes. Due to that, inconsistency among replicas
+may happen, eventual consistency guarantees that once updates cease, all
+replicas are going to converge to the same value at some moment. As long as
+updates are occurring, replicas might be inconsistent and clients may access
+stale or divergent data depending on which replica processes a given read
+request. Consequently, the system must implement algorithms for conflict
+detection and resolution. A system may use quorums to reduce the chances of
+conflicts and stale values, the drawback is decreased availability when a
+specific quorum cannot be reached due to node or network failures
+\parencite{Vogels2009}. Dynamo addresses that by using sloppy quorums instead of
+strict quorums, meaning that the set of nodes responsible for a given key can
+change in face of server or network failures \parencite{DeCandia2007}. Quorums are
+commonly defined by the \textit{N}, \textit{R} and \textit{W} parameters:
+\textit{N} is the replication factor and represents the number of replicas of a
+given object in the system. \textit{R} and \textit{W} are respectively the
+number of replicas that need to agree on the same value for a read and for a
+write to be considered successful. Dynamo also uses hinted handoff, a mechanism
+by which new temporary replicas are created in different nodes when one or
+more of the original replicas of an object cannot be reached. This mechanism is
+activated when nodes storing a replica become unavailable or a network partition
+prevents access to them.
+
+Per-record timeline consistency stays in a middle ground between
+linearizability \parencite{Herlihy1990} and eventual consistency, trading off
+availability for consistency in some situations \parencite{Cooper2008}. For each
+stored object, it allows updates only to one of its replicas, the master
+replica. By serializing updates in the master replica, conflicts among replicas
+cannot happen since every replica receives the updates in the same order, thus
+eliminating the need for conflict detection and resolution mechanisms. Due to
+asynchronous replication, replicas may have different values due to network
+latency or network failure, however, at any given moment, the most up-to-date
+replica is known. Records are versioned and read requests carry the required
+version, which can be a specific version, the latest (served exclusively by the
+master) or any version. The different types of reads gives clients control over
+the trade-offs between consistency and performance: latest reads may have higher
+latencies due to traversing the WAN while reads of any versions mean that a
+client may risk reading stale values to achieve fast response times.
+
+The highest impact factor on the performance of a system using per-record
+timeline consistency on a WAN is the high cost of consistent operations when
+the master replica is not in the client's data center. However, specific
+conditions may alleviate this issue, such as high access locality rates and
+high read/write ratios. The authors of the PNUTS paper point that some
+applications at Yahoo! exhibit access locality up to 85 \% and write / read
+ratio as low as 6\% \parencite{Kadambi2011, Cooper2008}. A social network
+application fits this pattern, most users access the application from the same
+geographic location and a post or picture is written once (or edited few times
+at most) but read several times. Thus, in an application in which the number of
+reads is much greater than the number of writes, network communication costs
+are low on average, especially if reads do not necessarily need the latest
+version. The PNUTS developers implemented a simple heuristic by which the
+master replica migrates to the data center that processed the three latest
+writes of the object. Back to the social network example, this would be the
+case of a user moving to another country and starting using the system from
+this new geographic location.
+
+In terms of trade-offs, an eventually consistent system similar to
+Dynamo is PA/EL: it trades off consistency for availability in the presence of
+network partitions and for performance on normal operation. Operating over a
+WAN, both reads and writes are fast since the closest replicas are able to
+process the requests (as long as the system keeps a sufficient number of them
+in each data center). When a network partition happens preventing access to
+distant replicas, mechanisms such as sloppy quorums and hinted handoff act to
+guarantee availability. A system using per-record timeline consistency similar
+to PNUTS is PC/EL: for writes and latest reads, it trades off availability for
+consistency in the presence of network partitions, and it trades off
+consistency for latency on normal operation by providing clients with the
+option of reading any version of an object (which also provides some level of
+availability in case of partitions).
+
+%% ------------------------------------------------------------------------- %%
+\section{Related Work}
+
+A common approach in the distributed systems literature is the proposal of a
+new concept and the implementation of that concept into a system accompanied by
+a performance analysis. The Dynamo \parencite{DeCandia2007} and the PNUTS papers
+\parencite{Cooper2008} show performance analyses. A second paper about PNUTS
+analyzes bandwidth consumption under different replication policies for
+communication over WANs \parencite{Kadambi2011}.
+
+Several papers present performance analyses of storage systems using
+replication over WANs. In most cases, the goals of the systems are to prove
+ideas other than the efficiency of their consistency model. COPS uses causal+
+consistency that is similar to causal consistency with extended guarantees and
+implements transactions \parencite{Lloyd2011}. Scatter proposes an scalable
+architecture for a strong consistent system \parencite{Glendenning2011}. Windows
+Azure provides a cloud storage system with strong consistency
+\parencite{Calder2011}. Megastore uses Paxos to implement strong consistency
+\parencite{Baker2011}. None of these works present comparisons with other systems or
+other consistency models. As they do not use a common benchmark or the same
+environment, it is difficult to compare them.
+
+The different consistency options in Cassandra and the resulting availability
+and performance were analyzed in \parencite{Beyer2011}, the conclusion is that
+more strict consistency models perform worse. Performance and availability of
+master-slave replication and chain replication are compared in
+\parencite{vanRenesse2004}, each of them under strong consistency and eventual
+consistency. None of these studies consider operation over WANs or different
+workloads.
+
+A comparison between Cassandra, HBase, PNUTS and sharded MySQL under different
+workloads can be found in \parencite{Cooper2010}. The focus of this work is the
+comparison of the systems performance, but not much can be said about their
+consistency models since they have different architectures, implementations and
+configuration options. Moreover, it only considers the systems operating in a
+LAN, not a WAN.
+
+%% ------------------------------------------------------------------------- %%
+\section{Experiment Planning}
+
+We performed an experiment to compare the performance of a storage system using
+eventual consistency and per-record timeline consistency under different
+situations. Planning and execution used ``The Art Of Computer Systems
+Performance Analysis'' \parencite{Jain1991} as the main methodological reference.
+
+The experiment planning consisted of the following steps:
+
+\begin{itemize}
+\item Evaluation technique selection
+\item System selection
+\item Platform selection
+\item List of system and workload parameters
+\item Factor selection
+\end{itemize}
+
+The three techniques available for system performance analysis are simulation,
+analytical modeling and measurement \parencite{Jain1991}. We picked measurement, as
+33 parameters were initially considered for this study (see the following
+section), simulators and models were discarded because the needed
+simplifications to apply them would result in loss of accuracy.
+
+To be able to accurately compare the consistency models without interference of
+software architecture and technology stack factors, we opted to use a single
+system providing both consistency models. As no such system was found, we
+implemented per-record timeline consistency in Riak, a free software system
+that already implemented eventual consistency
+\footnote{\url{http://docs.basho.com/riak/}}. Besides the new
+consistency model, we also implemented a partitioning algorithm that ensures
+that there exist at least one replica of each object in each data center
+\footnote{The code can be found at \url{https://github.com/mdediana/riak_kv}
+and \url{https://github.com/mdediana/riak_core}}.
+
+For running the experiments and gathering results, we used the Riak benchmark
+Basho Bench \footnote{\url{http://docs.basho.com/riak/latest/cookbooks/Benchmarking/}}.
+We adapted it to be able to run more than a single instance simultaneously,
+with one instance for each data center.
+
+To achieve experiment reproducibility, the use of a real WAN was avoided.
+Instead, the experiments emulated a WAN with the Linux tools tc (traffic
+control) and netem (Network Emulation). These tools provide functionality for
+emulating network characteristics such as latency and packet loss. Network
+settings in Linux were configured according to recommended optimizations for
+WAN communication \parencite{ESnet2012}, for example, the use of the double of the
+Bandwidth-Delay Product (BDP) as transmission and reception buffer size.
+
+The experiments were carried out on Grid'5000, a platform for creation,
+implementation and monitoring of parallel and distributed system experiments
+\footnote{\url{http://www.grid5000.fr/}}. Grid'5000 provides several types of
+servers and networks for conducting experiments in different clusters, each
+cluster providing homogeneous hardware. The environment is not virtualized
+(barebone servers) and is monitored and highly configurable, so researchers
+have great control of the experiments.
+
+The list of system and workload parameters was:
+
+\begin{itemize}
+\item Consistency model
+\item Replication configuration (for eventual consistency)
+\item Required version for reads (for per-record timeline consistency)
+\item Number of system nodes
+\item Number of benchmark instances
+\item Number of threads in each benchmark instance
+\item Number of stored objects
+\item Object sizes
+\item WAN latency
+\item WAN jitter
+\item WAN packet loss rate
+\item WAN packet duplication rate
+\item WAN packet reordering rate
+\item TCP variant
+\item Locality
+\item Read/write ratio
+\item Object popularity
+\item Cluster
+\item Storage engine
+\item Data center capacity (number and type of nodes)
+\item Key partitioning algorithm
+\item Replication factor ($ N $)
+\item Migration threshold (for per-record timeline consistency)
+\item Interface access
+\item Log level
+\item Hardware configuration of intermediary network devices
+\item Network topology
+\item LAN bandwidth
+\item LAN latency
+\item LAN jitter
+\item WAN bandwidth
+\item Number of WAN links
+\item Request arrival rate
+\end{itemize}
+
+The study used factorial design, which consist of a combination of factors in
+each experiment comprising the study \parencite{Jain1991}. The more factors and
+levels in a study, the more resources are needed to its execution.  Moreover,
+usually a few factors explain the most effects on the response. Therefore, a
+selection of the most influential factors was performed by the use of
+2\textsuperscript{k} experiments, which consist of the selection of only the
+minimum and maximum levels for each factor, resulting in a total of
+2\textsuperscript{k} experiments, where \textit{k} is the number of factors.
+
+%% ------------------------------------------------------------------------- %%
+\section{Fixed Parameters}
+
+After defining the experimental design, 33 parameters were listed, 16 of which
+were fixed due to resource constraints. With regards to network parameters, the
+values of LAN parameters were the actual values found in the cluster, while WAN
+parameters were emulated. The fixed parameters and their respective values
+were:
+
+\begin{itemize}
+
+\item \textbf{Cluster:} \textit{sol} in Grid'5000, which nodes have AMD Opteron
+2218 2.6 GHz CPU, 4 GB RAM and 1 Gb/s network cards.
+
+\item \textbf{Storage engine:} memory, by which we avoided the effects of disk
+and disk cache and the interaction between disk cache and the amount of
+available RAM, so the only I/O effects observed in the experiments were due to
+the network.
+
+\item \textbf{Data center capacity:} Data centers had the same capacity - the
+same number of nodes per data center and nodes with the same hardware
+configuration.
+
+\item \textbf{Key partitioning algorithm:} Consistent hashing, which is the
+default algorithm in Riak.
+
+\item \textbf{Replication factor ($ N $):} 3, which is the value that results
+in a reasonable balance between performance, availability and durability in
+real applications \parencite{DeCandia2007}.
+
+\item \textbf{Migration threshold (for per-record timeline consistency):} 3,
+which is PNUTS default value \parencite{Cooper2008}.
+
+\item \textbf{Interface access:} HTTP, due to its simplicity.
+
+\item \textbf{Log level:} WARN, since exploratory experiments showed loss of
+performance when the logging level was INFO.
+
+\item \textbf{Hardware configuration of intermediary network devices:} FastIron
+Super X switch, which was the single network device between nodes. Tests have
+shown there were no bottlenecks in the switch even in experiments with high
+consumption of bandwidth.
+
+\item \textbf{Network topology:} Star, the only network topology available in
+the cluster.
+
+\item \textbf{LAN bandwidth:} 1 Gb/s, which was the bandwidth provided by the
+network cards contained in the nodes.
+
+\item \textbf{LAN latency:} $167\mu$s, latency measured with 60 samples of
+pings separated by 5 s.
+
+\item \textbf{LAN jitter:} $90\mu$s, jitter measured by the same means as
+latency.
+
+\item \textbf{WAN bandwidth:} 100 Mb/s, based on informal study citing this was
+the commonly observed bandwidth between AWS availability zones
+\parencite{Pujol2012}.
+
+\item \textbf{Number of WAN links:} 1, which means two simulated data centers.
+
+\item \textbf{Request arrival rate:} 15 operations/s for each thread of each
+benchmark instance. After all factors were selected we also ran the final study
+with the maximum load provided by the benchmark to verify the results.
+
+\end{itemize}
+
+There were 17 remaining candidate factors:
+
+\begin{itemize}
+\item Consistency model
+\item Replication configuration (for eventual consistency)
+\item Required version for reads (for per-record timeline consistency)
+\item Number of system nodes
+\item Number of benchmark instances
+\item Number of threads in each benchmark instance
+\item Number of stored objects
+\item Object sizes
+\item WAN latency
+\item WAN jitter
+\item WAN packet loss rate
+\item WAN packet duplication rate
+\item WAN packet reordering rate
+\item TCP variant
+\item Locality
+\item Read/write ratio
+\item Object popularity
+\end{itemize}
+
+The first three parameters interacted in particular ways that yielded in their
+combination into a single factor, the mode.
+
+%% ------------------------------------------------------------------------- %%
+\section{Mode}
+
+Three factors interacted in a particular way, their different combinations
+resulting in different ratios of local/remote requests. The factors were:
+consistency model, replication configuration (for eventual consistency) and
+required version for reads (for per-record timeline consistency). Given a
+replication factor of three and that each data center had one or two replicas
+of each object (never none), two situations were possible from the client
+standpoint with respect to the location of replicas: one local and two remote
+or vice versa. Thus we combined those factors into a single one, the mode. The
+modes and their respective proportions of reads and writes were:
+
+\begin{itemize}
+
+\item \textit{ev1}: Eventual consistency with $W$ = 1 and $R$ = 1, all reads and writes could be performed in the local data
+center.
+
+\item \textit{ev2}: Eventual consistency with $W$ = 2 and $R$ = 1, all reads and 50\% of writes could be performed in the
+local data center while the other 50\% of write operations needed to traverse
+the WAN to access the second replica.
+
+\item \textit{any}: Per-record timeline consistency with reads of any version, all reads could be performed in the local data center and
+the proportion of writes in the local / remote data center depended on data
+access locality.
+
+\item \textit{lat}: Per-record timeline consistency with reads of latest version, both reads and writes depended on data access locality.
+
+\end{itemize}
+
+It is worth noting that these modes involve trade-offs other than performance
+and consistency. For example, durability is higher for \textit{ev2} than for
+the other modes in which write confirmation of a single replica is sufficient.
+
+After defining the mode factor, 14 candidate factors remained, too many for the
+final study. We performed 2\textsuperscript{k} experiments to reduce this
+amount in an informed way.
+
+%% ------------------------------------------------------------------------- %%
+\section{Factor Selection}
+
+An approach for the selection of factors would group all candidate factors in a
+single 2\textsuperscript{k} experimental study. This approach would not work
+because even considering only two levels by factor, it would lead to
+2\textsuperscript{14} experiments, still prohibitive.
+
+We split the experiments into smaller groups of related factors, assuming
+that unrelated factors would have little to no interaction between them, and
+ran experiments for each group separately. With that, comparison between
+factors of different groups and their interactions was lost. However, since
+most factors have shown little influence inside their groups, as shown in the
+following subsections, this approach did not present a threat to validity.
+
+Most factors were prone to interactions with network factors. The WAN latency
+in particular had been very influential in exploratory studies, fact later
+confirmed by the study of network factors. Given that, we used WAN latency as a
+proxy for network factors when necessary.
+
+In some cases, the results of all experiments of a study were similar
+regardless of the factor levels. To handle such cases we used the coefficients
+of variation (CVs) of the responses as an estimate of the influence of that set
+of factors and interactions as a whole. Thus, a low CV indicated that none of
+the factors were influential.
+
+An experimental study must measure a system in its steady-state, so a warmup
+phase might be necessary to take the system to that state. For per-record
+timeline consistency, we implemented a warmup phase between data loading and
+the actual experiment run. At the end of the load phase each object had been
+randomly placed in a data center and no master replicas had migrated yet, which
+corresponds to a locality of 50\% in a system distributed across two data
+centers. When we needed a locality different than 50\%, warmup was used to
+force master migrations until the steady-state was reached.
+
+We conducted four intermediate studies, which are described in the following
+subsections. Whenever mode and locality had to be fixed, they were fixed
+respectively at \textit{lat} and 50\%, values that result in a balanced amount
+of reads and writes, both local and remote. When necessary, latency was fixed
+at 100~ms. In the results, the 10 and 90 percentiles represent respectively
+local and remote requests.
+
+%% ------------------------------------------------------------------------- %%
+\subsection{System size and benchmark size factors}
+
+The number of nodes and benchmark instances not only influenced the
+responses, they also influenced operational issues related to node reservation --
+by Grid'5000 rules, the greater the number of reserved nodes, the smaller the
+reservation time. Therefore, a study was done to determine the influence of
+these factors. We used the following levels:
+
+\begin{itemize}
+
+\item Number of system nodes (N): 8 and 16
+
+\item Number of benchmark instances (B): 2 and 4
+
+\item Number of threads in each benchmark instance (T): 32 and 64
+
+\end{itemize}
+
+\begin{table}[h!]
+  \caption{Study for system size factors. N -- number of system nodes, B --
+number of benchmark instances, T -- number of threads in each benchmark
+instance}
+  \label{tab:estudo_para_fatores_de_tamanho_do_sistema}
+  \begin{tabular}{ccccccccc}         \toprule
+  Operation & Percentile & N & B & T & NB & NT & BT & NBT\\ \midrule
+  
+  read & 10 & 30 & 18 & 22 & 10 & 8 & 7 & 4 \\
+  
+  read & 90 & 65 & 13 & 15 & 3 & 4 & 0 & 0 \\
+  
+  write & 10 & 96 & 2 & 1 & 0 & 0 & 0 & 0 \\
+  
+  write & 90 & 65 & 15 & 13 & 3 & 3 & 0 & 0 \\ \bottomrule
+  \end{tabular}
+\end{table}
+
+The result of the study is shown in Table
+\ref{tab:estudo_para_fatores_de_tamanho_do_sistema}. The system size had
+greater influence on the results, with the number of benchmark instances and
+threads having a smaller influence.
+
+Although showing some influence on the results, these factors were fixed due to
+resource constraints (see Section~\ref{threats_to_validity}). Given the results, the fixed values
+were:
+
+\begin{itemize}
+
+\item Number of system nodes: 16
+
+\item Number of benchmark instances: 4
+
+\item Number of threads in each benchmark instance: 32
+
+\end{itemize}
+
+These values were selected because they resulted in the ``lightest''
+configuration, avoiding network bottlenecks and system overload. Although
+desirable, a greater number of nodes would imply lack of hardware homogeneity
+and operational difficulties due to the Grid'5000 rules.
+
+%% ------------------------------------------------------------------------- %%
+\subsection{Database factors}
+
+The database size would affect memory usage and bandwidth consumption in the
+nodes. The levels used in the study were:
+
+\begin{itemize}
+
+\item Number of stored objects (O): 64,000 and 256,000
+
+\item Object sizes (S): 100 and 10,000 bytes
+
+\end{itemize}
+
+\begin{table}[h!]
+  \caption{Study for database factors, O -- number of stored objects, S -- object
+sizes, L -- latency.}
+  \begin{tabular}{ccccccccc}         \toprule
+Operation & Percentile & O & S & L & OS & OL & SL & OSL\\ \midrule
+
+read & 10 & 0 & 100 & 0 & 0 & 0 & 0 & 0 \\
+
+read & 90 & 0 & 0 & 100 & 0 & 0 & 0 & 0 \\
+
+write & 10 & 0 & 100 & 0 & 0 & 0 & 0 & 0 \\
+
+write & 90 & 0 & 0 & 100 & 0 & 0 & 0 & 0 \\ \bottomrule
+  \end{tabular}
+  \label{tab:estudo_para_fatores_de_banco_de_dados}
+\end{table}
+
+The result of the study is shown in Table
+\ref{tab:estudo_para_fatores_de_banco_de_dados}. The number of objects did not
+affect system performance. Object size did not affect performance of remote
+requests, however, they correspond to 100\% of influence regarding local
+requests. Nevertheless, the CV of local requests indicated that their influence
+was not as great - 19\% for reads and 16\% for writes.
+
+Given the results, the fixed values were:
+
+\begin{itemize}
+
+\item Number of stored objects: 128,000
+
+\item Object sizes: 500
+
+\end{itemize}
+
+The number of stored objects influenced the warmup time, thus the lower the
+number, the faster the execution of experiments. Conversely, a too small number
+would result in an excessive number of conflicts for eventual consistency. For
+the size of stored objects, the value was chosen based on a study of caching
+systems on Facebook, which reports that 90\% of the objects are smaller than
+500 bytes \parencite{Atikoglu2012}.
+
+%% ------------------------------------------------------------------------- %%
+\subsection{Network factors}
+
+Given the purpose of this work, the study for network factors was one of the
+most important for the factor selection. The levels were as follows:
+
+\begin{itemize}
+
+\item WAN latency (L): 100 and 300 ms
+
+\item WAN jitter (J): 1 and 60\%
+
+\item WAN packet loss rate (P): 0.01 and 0.3\%
+
+\item WAN packet duplication rate (D): 0.05 and 5\%
+
+\item WAN packet reordering rate (R): 0.05 and 5\%
+
+\item TCP variant (V): CUBIC and H-TCP
+
+\end{itemize}
+
+Latency levels were based on a study reporting latencies between regions of the
+Amazon Web Services \parencite{Sovran2011}, in which the lowest latency between data
+centers in each U.S. coast was 82 ms and the highest was 277 ms between Ireland
+and Singapore.
+
+Project PingER served as the basis for other factors \parencite{PingER2013}. In
+January 2013, it showed an average latency of 238.06~ms with standard deviation
+143.00~ms, resulting in a jitter of 60\%. The previous 11 months showed similar
+figures. The median packet loss rate was 0.178\%. The average packet
+duplication rate in January 2013 was 0.006\%. The values used in the experiment
+for duplication and reordering were higher than those observed by PingER, yet
+they did not influence the response.
+
+Both H-TCP and CUBIC were designed with a focus on high bandwidth, high latency
+networks (high BDP), and appear in references about TCP tuning for WANs
+\parencite{ESnet2012}.
+
+In the emulated network, latency defines the minimum level and jitter defines
+the maximum value that latency can reach. For example, when latency is
+configured as 100~ms and variation as 60\%, the emulator generates latency
+values between 100~ms and 160~ms. The generated values followed the normal
+distribution within the specified range of latency.
+
+\begin{table}[h!]
+\caption{Network factors study. L -- WAN latency, J -- WAN jitter, P -- WAN
+packet loss rate, D -- WAN packet duplication rate, R -- WAN packet reordering
+rate, V -- TCP variant}
+\begin{tabular}{ccccccccc} \toprule
+
+Operation & Percentile & L & J & P & D & R & V & LJ\\ \midrule
+
+read & 90 & 72 & 21 & 1 & 0 & 0 & 0 & 6\\
+
+write & 90 & 69 & 23 & 1 & 0 & 0 & 0 & 6\\ \bottomrule
+
+\end{tabular}
+\label{tab:estudo_para_fatores_de_rede}
+
+\end{table}
+
+The result of the study is presented in Table
+\ref{tab:estudo_para_fatores_de_rede}, columns of interactions between factors
+with all cells less than 1\% were suppressed for the sake of space. The
+responses of local requests showed CVs of 1\%, so their rows were also
+suppressed -- which indicates that WAN does not affect local requests, as
+expected.
+
+Latency, jitter and the first order interaction between them make up for close to 100\% of the response. Therefore, the selected levels for
+these factors were:
+
+\begin{itemize}
+
+\item WAN latency (ms): 0, 100, 200 and 300
+
+\item WAN jitter (\%): 0 and 60
+
+\end{itemize}
+
+Latency and jitter at zero are equivalent to having the entire system operating
+over a LAN. The results obtained in these cases were used as aid in the
+interpretation of other results, but were not considered in the final study,
+since they are not realistic.
+
+The fixed values of the disregarded factors were:
+
+\begin{itemize}
+
+\item WAN packet loss rate: 0\%
+
+\item WAN packet duplication rate: 0\%
+
+\item WAN packet reordering rate: 0\%
+
+\item TCP variant (T): CUBIC
+
+\end{itemize}
+
+%% ------------------------------------------------------------------------- %%
+\subsection{Workload factors}
+
+Along with network factors, this was one of the most important studies. The
+levels were as follows:
+
+\begin{itemize}
+
+\item Read / write ratio (R): 2:1 and 10:1
+
+\item Object popularity (P): uniform (the average of the request arrival rate
+for each object is the same) and skewed (the arrival rate follows a Pareto
+distribution)
+
+\item Locality (X): 50\% (no locality) and 90\% (90\% of accesses to a given
+object coming from one data center and 10\% from the other)
+
+\end{itemize}
+
+As the modes behave differently depending on locality, we performed one set of
+experiments for each mode.
+
+The read/write ratio and locality did not use percentiles, they used the
+average of response times for reads and writes instead. The read/write ratio
+relates to the composition between reads and writes, while locality alters the
+composition between local and remote requests, so these factors did not make
+sense in percentiles separated by request type. For example, the same 70th
+percentile corresponds to remote requests at a 50\% locality but corresponds to
+local requests at a 90\% locality. If the analysis was performed based off
+percentiles, this location information would be lost and locality would never
+have any influence.
+
+\begin{table}[h!]
+\caption{Study for workload factors, L is latency. R -- read / write ratio, P
+-- object popularity, X -- locality}
+\begin{tabular}{cccccccccc} \toprule
+
+Mode & R & X & P & L & RX & RL & XL & PL & XPL\\ \midrule
+
+\textit{ev1} & 19 & 12 & 2 & 31 & 0 & 2 & 6 & 6 & 8\\
+
+\textit{ev2} & 50 & 0 & 0 & 39 & 0 & 11 & 0 & 0 & 0\\
+
+\textit{any} & 25 & 30 & 0 & 19 & 9 & 6 & 8 & 0 & 0\\
+
+\textit{lat} & 0 & 53 & 0 & 34 & 0 & 0 & 13 & 0 & 0\\ \bottomrule
+
+\end{tabular}
+\label{tab:estudo_para_fatores_de_carga_de_trabalho}
+\end{table}
+
+The result of the study is shown in Table
+\ref{tab:estudo_para_fatores_de_carga_de_trabalho}, in which columns with all
+values smaller than 5\% were removed for the sake of space. The results for
+local requests showed CVs around 2\% for all modes, indicating that none of the
+factors influenced local requests.
+
+As expected, locality and latency influenced responses in general. The impact
+of popularity of objects is virtually nil. Although some modes were apparently
+impacted by read/write ratio, this impact was a consequence of the relationship
+between local and remote requests. For \textit{ev1}, both reads and writes are
+local and the read/write ratio and their interactions with other factors have
+little impact in this mode. For \textit{lat}, reads and writes are local or
+remote depending on locality and read/write ratio does not impact this mode.
+For \textit{ev2}, all reads are local and half of writes are remote, therefore
+when the read/write ratio changes, the ratio between local and remote requests
+changes proportionally -- as expected, this mode is impacted by the read/write
+ratio. The same observation holds for \textit{any}, for which all reads are
+local and writes depend on locality, so it is impacted by the read/write ratio.
+The read/write ratio would likely influence the response if the storage
+mechanism was disk instead of memory, since writes would be affected by the
+write time to disk, while reads could be faster due to disk caching.
+
+Therefore, only locality was selected as a factor:
+
+\begin{itemize}
+
+\item Locality (\%): 50 and 90
+
+\end{itemize}
+
+The fixed values of the disregarded factors were:
+
+\begin{itemize}
+
+\item Read/write ratio: 2:1
+
+\item Object popularity: uniform
+
+\end{itemize}
+
+%% ------------------------------------------------------------------------- %%
+\section{Final Study and Results}
+
+\begin{table}[h!]
+\caption{Factors and levels in the final study.}
+\begin{tabular}{lcc} \toprule
+
+Factor & Levels & Number of levels\\ \midrule
+
+Mode & \textit{ev1}, \textit{ev2}, \textit{any} e \textit{lat} & 4\\
+
+WAN latency (ms) & 0, 100, 200 and 300 & 4\\
+
+WAN jitter (\%) & 0 and 60 & 2\\
+
+Locality & 50\% and 90\% & 2\\ \bottomrule
+
+\end{tabular}
+
+\label{tab:fatores_e_niveis_do_estudo_final}
+
+\end{table}
+
+The final study consisted of a total of 64 experiments with the factors
+selected by the 2\textsuperscript{k} studies.
+Table~\ref{tab:fatores_e_niveis_do_estudo_final} shows the final factors and
+their respective levels. Two replications of the study were used to estimate
+the variability of the experiments, the measured average CVs were 1\% for reads
+and 0.8\% for writes.
+
+\begin{figure}
+\caption{Boxplot of response times for 15 operations/s per thread.}
+\includegraphics[width=1.0\textwidth]{boxplot200.png}
+\label{fig:boxplot_dos_tempos_de_resposta}
+\end{figure}
+
+The system showed similar behavior for 100~ms, 200~ms and 300~ms latency
+levels, so we used only one of them on the presentation of the final results.
+The boxplot for the 200~ms latency level is shown in Figure
+\ref{fig:boxplot_dos_tempos_de_resposta}. A box not showing in the figure
+indicates that all requests delimited by the boxplot whiskers were local.
+
+The experimental results match the expected analytical results, where
+per-record timeline consistency shows the same level of performance as eventual
+consistency when data locality and read/write ratio are high.  If data locality
+is low (50\%), the performance of per-record timeline consistency is only
+comparable to eventual consistency for reads of any version, performance is hit
+for reads of latest version and writes.  Per-record timeline consistency
+becomes an interesting option when data locality is high (90\%), since most
+reads and writes are local. Given that reads of any version perform well under
+low data locality, per-record timeline consistency can also be an option for
+applications where the read/write ratio is high and slow writes are tolerable.
+
+\begin{figure}
+\caption{Boxplot of response times for maximum load per thread.}
+\includegraphics[width=1.0\textwidth]{boxplot200_max.png}
+\label{fig:boxplot_dos_tempos_de_resposta_para_carga_maxima}
+\end{figure}
+
+Although the request rate had been fixed at first, we ran the same experiment
+with maximum load instead of 15 operations/s per thread as a result
+verification. Figure~\ref{fig:boxplot_dos_tempos_de_resposta_para_carga_maxima}
+shows that all modes showed an increase in response times, but the general
+behavior remained the same.
+
+Even in cases where data locality and read/write ratio are high, per-record
+timeline consistency may be discarded as an alternative due to performance
+variability. For applications where response time requirements are on the 99.9
+percentile for example \parencite{DeCandia2007}, per-record timeline consistency
+is not appropriate.
+
+Reasoning about and implementing an application using a storage system that
+implements per-record timeline consistency is easier than an eventually
+consistent one. Implementing per-record timeline consistency in a storage
+system is less complex than eventual consistency since no conflict detection
+and resolution mechanisms are necessary. This impact the cost of development
+and maintenance of storage systems and the applications that use them. The only
+system implementing per-record timeline consistency to this date is PNUTS,
+which is not available outside Yahoo!. This opens up an opportunity for
+companies or the open source community to provide this consistency model in new
+or existing systems.
+
+%% ------------------------------------------------------------------------- %%
+\label{threats_to_validity}
+\section{Threats to Validity}
+
+Some parameters were fixed and influential parameters were disregarded. Thus,
+studies that use other values for the parameters or take different factors into
+consideration may yield different results. This is particularly true for the
+number of system nodes, which showed as highly influential in the preliminary
+studies. In addition, levels at different ranges may yield different results
+\parencite{Jain1991}.
+
+The experiments did not take node failures into account. Experiments with the
+system operating in a failure mode (from the failure of a single node to a
+whole data center) will likely yield to different results. Such situations were
+not part of the experiments due to resource limitations.
+
+%% ------------------------------------------------------------------------- %%
+\section{Conclusions}
+
+This experimental study compared the performance of a geo-replicated
+distributed storage system using eventual consistency and per-record timeline
+consistency. The results show that per-record timeline consistency is
+competitive with eventual consistency when write locality is high, read/write
+ratio is high and stale reads are tolerated. It also presented a list of other
+factors and their influence over system performance.
+
+The main advantages of per-record timeline consistency over eventual
+consistency are the guarantee that conflicting updates do not occur and that
+the most current value of any object is known at all times. An interesting
+scenario for its use is the case where the application tolerates staleness for
+most of its reads, but needs the latest value for a few. Per-record
+timeline consistency main drawbacks are that writes and reads of latest version
+become unavailable if the master replica is unavailable and its relatively high
+response time variability.
+
+Besides the presented experimental results, another contribution of this work,
+especially for the research community, is its detailed experimental design. By
+conducting formal factor and level selections, experimental results are more
+reliable and their limitations are better understood.
+
+Different consistency models yield different trade-offs between consistency,
+performance and availability. Having more consistency models available and
+understanding their trade-offs help developers and system administrators of
+large-scale systems to pick solutions, reducing the costs of development and
+operations of such systems.
+
+%\bibliographystyle{apacite}
+%\bibliography{cmb.bib}
+\printbibliography
+\end{document}
