@@ -45,27 +45,24 @@ Timeline Consistency in Geo-replicated Systems}
 
 \leftheader{De Diana, Gerosa}
 
-\abstract{Large-scale web systems use data replication among data centers to
-achieve high levels of performance and availability, trading off these
-attributes against consistency. Consistency models define the consistency
-guarantees that a system provides and its trade-offs. Eventual consistency is a
-more relaxed consistency model, widely adopted in large-scale systems. By its
-turn, the less popular per-record timeline consistency strikes a better balance
-when requirements over consistency are more restrictive. However, to be able to
-make a decision, developers need to understand its performance penalties and
-the situations when they apply.
+\abstract{Large-scale web systems use data replication to achieve high levels
+of performance and availability, trading off these attributes against
+consistency. Eventual consistency is a relaxed consistency model widely adopted
+in large-scale systems. By its turn, the less popular per-record timeline
+consistency may strike a better balance when requirements over consistency are
+more restrictive.
 
-In this paper, we show that under certain workloads and network conditions, a
-storage system exhibits similar performance for both consistency models. The
-experimental results confirm that a system under per-record timeline
-consistency suffer a low performance hit compared to the same system under
-eventual consistency if it exhibits high data locality and read/write ratios.
-This comparative presents resources for developers of storage systems and
-web applications about the viability of a consistency model other
-than eventual consistency for large-scale systems.}
+In this paper, we show that the performance of a system using eventual
+consistency or per-record timeline consistency is similar under certain
+workloads and network conditions, such as high data locality and high
+read/write ratios. The results are beased on a rigorous benchmark methodology
+that took into consideration 33 parameters that can affect the performance of
+such a system. These findings are useful for developers of storage systems and
+web applications about the viability of a consistency model other than eventual
+consistency for large-scale systems.}
 
-\keywords{distributed systems, consistency models, large scale web systems,
-performance analysis, data center}
+\keywords{distributed systems, storage systems, consistency models, large scale
+web systems, performance analysis, data center}
 
 \authornote{Mauricio De Diana, Computer Science Department,
   University of S\~{a}o Paulo.
