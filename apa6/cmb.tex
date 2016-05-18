@@ -55,10 +55,10 @@ more restrictive.
 In this paper, we show that the performance of a system using eventual
 consistency or per-record timeline consistency is similar under certain
 workloads and network conditions, such as high data locality and high
-read/write ratios. The results are beased on a rigorous benchmark methodology
+read/write ratios. The results are based on a rigorous benchmark methodology
 that took into consideration 33 parameters that can affect the performance of
-such a system. These findings are useful for developers of storage systems and
-web applications about the viability of a consistency model other than eventual
+such a system. These findings are useful for practitioners and researcher to
+better understand the viability of a consistency model other than eventual
 consistency for large-scale systems.}
 
 \keywords{distributed systems, storage systems, consistency models, large scale
@@ -96,20 +96,21 @@ maintaining the consistency among the replicas, mainly due to network latencies
 and node / network failures.
 
 Developers and administrators of such systems need to seek a balance between
-consistency, performance and availability. Several consistency models have been
-described in the literature, each of them defining a different set of
-conditions, guarantees and trade-offs related to consistency, performance and
-availability. A common decision in large-scale systems is the use of more
-relaxed consistency models to achieve low latency and high availability.
-However, inconsistencies are more likely to happen with more relaxed
-consistency models.
+consistency, performance and availability \parencite{Guerraoui2016}. Several
+consistency models have been described in the literature, each of them defining
+a different set of conditions, guarantees and trade-offs related to
+consistency, performance and availability. A common decision in large-scale
+systems is the use of more relaxed consistency models to achieve low latency
+and high availability.  However, inconsistencies are more likely to happen with
+more relaxed consistency models.
 
 Eventual consistency is a more relaxed consistency model which gained
-popularity with the publication of the Dynamo paper \parencite{DeCandia2007}.  A
-system using eventual consistency is highly available, tolerating both node and
-network failures at the cost of the possibility serving conflicting values to
-clients. Eventual consistency guarantees that replicas are going to converge at
-some moment, but they may be inconsistent over some time periods. To deal with
+popularity with the publication of the Dynamo paper
+\parencite{DeCandia2007,Lakshman2010,Sumbaly2012,Riak2013}. A system using
+eventual consistency is highly available, tolerating both node and network
+failures at the cost of the possibility serving conflicting values to clients.
+Eventual consistency guarantees that replicas are going to converge at some
+moment, but they may be inconsistent over some time periods. To deal with
 inconsistencies, a system must implement conflict detection and resolution
 mechanisms.
 
@@ -177,14 +178,14 @@ Both availability and partition tolerance appear to a client of the system as
 the ability to carry through operations, so a highly-available system must
 present both and thus tolerate some level of inconsistency. The CAP theorem
 makes clear the trade-offs involved in case of failure, however, there are also
-trade-offs under system's normal operation. PACELC is a way of looking into
-these trade-offs, it states that if operating under a partition (P), a
-distributed system must trade off between availability (A) or consistency (C),
-else (E), it trades off between latency (L) or consistency (C)
-\parencite{Abadi2012}. Therefore, PACELC not only presents another reason to
-tolerate inconsistencies in a distributed system as it also shows that a system
-may have different sets of trade-offs depending on whether it is operating in
-the presence of network partitions or not.
+trade-offs under system's normal operation. PACELC is a refinement of CAP that
+adds performance to the the list of possible trade-offs, it states that if
+operating under a partition (P), a distributed system must trade off between
+availability (A) or consistency (C), else (E), it trades off between latency
+(L) or consistency (C) \parencite{Abadi2012}. Therefore, PACELC not only
+presents another reason to tolerate inconsistencies in a distributed system as
+it also shows that a system may have different sets of trade-offs depending on
+whether it is operating in the presence of network partitions or not.
 
 To achieve high availability, any replica of a given object in an eventually
 consistent systems accepts writes. Due to that, inconsistency among replicas
@@ -262,22 +263,25 @@ availability in case of partitions).
 
 A common approach in the distributed systems literature is the proposal of a
 new concept and the implementation of that concept into a system accompanied by
-a performance analysis. The Dynamo \parencite{DeCandia2007} and the PNUTS papers
-\parencite{Cooper2008} show performance analyses. A second paper about PNUTS
-analyzes bandwidth consumption under different replication policies for
-communication over WANs \parencite{Kadambi2011}.
+a performance analysis. Both the Dynamo \parencite{DeCandia2007} and the PNUTS
+papers \parencite{Cooper2008} show performance analyses, however they are not
+compared to other systems. A second paper about PNUTS analyzes bandwidth
+consumption under different replication policies for communication over WANs
+\parencite{Kadambi2011}.
 
-Several papers present performance analyses of storage systems using
-replication over WANs. In most cases, the goals of the systems are to prove
-ideas other than the efficiency of their consistency model. COPS uses causal+
-consistency that is similar to causal consistency with extended guarantees and
-implements transactions \parencite{Lloyd2011}. Scatter proposes an scalable
-architecture for a strong consistent system \parencite{Glendenning2011}. Windows
-Azure provides a cloud storage system with strong consistency
-\parencite{Calder2011}. Megastore uses Paxos to implement strong consistency
-\parencite{Baker2011}. None of these works present comparisons with other systems or
-other consistency models. As they do not use a common benchmark or the same
-environment, it is difficult to compare them.
+Several papers propose new consistency models with a focus on geo-replication,
+usually carrying performance analyses. RedBlue consistency defines two sets
+of operations, eventually consistent blue operations and strongly consistent
+red operations \parencite{Li2012}. COPS uses causal+ consistency, which is similar
+to causal consistency with extended guarantees and also implements transactions
+\parencite{Lloyd2011}. Scatter proposes an scalable architecture for a strong
+consistent system \parencite{Glendenning2011}. Windows Azure provides a cloud
+storage system with strong consistency \parencite{Calder2011}. Megastore uses
+Paxos to implement strong consistency and makes use of a scheme similar to
+PNUTS of placing the leader close to its writers \parencite{Baker2011}. None of
+these works present comparisons with other systems or other consistency models.
+As they do not use a common benchmark or the same environment, it is difficult
+to compare them.
 
 The different consistency options in Cassandra and the resulting availability
 and performance were analyzed in \parencite{Beyer2011}, the conclusion is that
@@ -322,12 +326,12 @@ To be able to accurately compare the consistency models without interference of
 software architecture and technology stack factors, we opted to use a single
 system providing both consistency models. As no such system was found, we
 implemented per-record timeline consistency in Riak, a free software system
-that already implemented eventual consistency
-\footnote{\url{http://docs.basho.com/riak/}}. Besides the new
-consistency model, we also implemented a partitioning algorithm that ensures
-that there exist at least one replica of each object in each data center
-\footnote{The code can be found at \url{https://github.com/mdediana/riak_kv}
-and \url{https://github.com/mdediana/riak_core}}.
+that already implemented eventual consistency \parencite{Riak2013}. Besides the
+new consistency model, we also implemented a partitioning algorithm that
+ensures that there exist at least one replica of each object in each data
+center \footnote{The code can be found at
+\url{https://github.com/mdediana/riak_kv} and
+\url{https://github.com/mdediana/riak_core}}.
 
 For running the experiments and gathering results, we used the Riak benchmark
 Basho Bench \footnote{\url{http://docs.basho.com/riak/latest/cookbooks/Benchmarking/}}.
