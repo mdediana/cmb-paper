@@ -45,15 +45,15 @@ Timeline Consistency in Geo-replicated Systems}
 
 \leftheader{De Diana, Gerosa}
 
-\abstract{Large-scale web systems use data replication among data centers to achieve high
-levels of performance and availability, trading off these attributes against
-consistency. Consistency models define the consistency guarantees that a system
-provides and its trade-offs. Eventual consistency is a more relaxed consistency
-model, widely adopted in large-scale systems. By its turn, the less popular
-per-record timeline consistency strikes a better balance when requirements over
-consistency are more restrictive. However, to be able to make a decision,
-developers need to understand its performance penalties and the situations when
-they apply.
+\abstract{Large-scale web systems use data replication among data centers to
+achieve high levels of performance and availability, trading off these
+attributes against consistency. Consistency models define the consistency
+guarantees that a system provides and its trade-offs. Eventual consistency is a
+more relaxed consistency model, widely adopted in large-scale systems. By its
+turn, the less popular per-record timeline consistency strikes a better balance
+when requirements over consistency are more restrictive. However, to be able to
+make a decision, developers need to understand its performance penalties and
+the situations when they apply.
 
 In this paper, we show that under certain workloads and network conditions, a
 storage system exhibits similar performance for both consistency models. The
@@ -455,9 +455,8 @@ pings separated by 5 s.
 \item \textbf{LAN jitter:} $90\mu$s, jitter measured by the same means as
 latency.
 
-\item \textbf{WAN bandwidth:} 100 Mb/s, based on informal study citing this was
-the commonly observed bandwidth between AWS availability zones
-\parencite{Pujol2012}.
+\item \textbf{WAN bandwidth:} 100 Mb/s, based on bandwidth between AWS regions
+in different continents \parencite{Topchiy2013}.
 
 \item \textbf{Number of WAN links:} 1, which means two simulated data centers.
 
@@ -908,7 +907,7 @@ their respective levels. Two replications of the study were used to estimate
 the variability of the experiments, the measured average CVs were 1\% for reads
 and 0.8\% for writes.
 
-\begin{figure}
+\begin{figure}[h!]
 \caption{Boxplot of response times for 15 operations/s per thread.}
 \includegraphics[width=1.0\textwidth]{boxplot200.png}
 \label{fig:boxplot_dos_tempos_de_resposta}
@@ -931,7 +930,7 @@ reads and writes are local. Given that reads of any version perform well under
 low data locality, per-record timeline consistency can also be an option for
 applications where the read/write ratio is high and slow writes are tolerable.
 
-\begin{figure}
+\begin{figure}[h!]
 \caption{Boxplot of response times for maximum load per thread.}
 \includegraphics[width=1.0\textwidth]{boxplot200_max.png}
 \label{fig:boxplot_dos_tempos_de_resposta_para_carga_maxima}
