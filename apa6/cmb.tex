@@ -36,6 +36,8 @@
 \DeclareLanguageMapping{american}{american-apa}
 \addbibresource{cmb.bib}
 
+\usepackage{makecell}
+
 \title{Comparing the Performance of Eventual Consistency and Per-record
 Timeline Consistency in Geo-replicated Systems}
 \shorttitle{Consistency Models in Geo-replicated Systems}
@@ -575,23 +577,28 @@ responses, but also influenced operational issues related to node reservation --
 by Grid'5000 rules, the greater the number of reserved nodes, the smaller the
 reservation time. Therefore, a study was done to determine the influence of
 these factors, Table~\ref{tab:system_size_and_benchmark_size_factors} shows
-their levels.
+the factors, the levels used in the 2\textsuperscript{k} experiment and the resulting levels for the final study.
 
 \begin{table}[h!]
 \caption{System size and benchmark size factors and levels.}
 \label{tab:system_size_and_benchmark_size_factors}
 \begin{tabular}{lcc} \toprule
 
-Factor & Levels \\ \midrule
+Factor & \thead{Levels on \\ 2\textsuperscript{k} experiment} & \thead{Levels on \\final study} \\ \midrule
 
-Number of system nodes (N) & 8 and 16\\
+Number of system nodes (N) & 8 and 16 & 16 (fixed) \\
 
-Number of benchmark instances (B) & 2 and 4\\
+Number of benchmark instances (B) & 2 and 4 & 4 (fixed) \\
 
-Number of threads in each benchmark instance (T) & 32 and 64 \\ \bottomrule
+Number of threads in each benchmark instance (T) & 32 and 64 & 32 (fixed) \\ \bottomrule
 
 \end{tabular}
 \end{table}
+
+Table~\ref{tab:estudo_para_fatores_de_tamanho_do_sistema} shows the influence
+of factors and their interactions found with the 2\textsuperscript{k}
+experiment.  The system size had greater influence on the results, with the
+number of benchmark instances and threads having a smaller influence.
 
 \begin{table}[h!]
   \caption{Study for system size factors. N -- number of system nodes, B --
@@ -600,41 +607,23 @@ instance}
   \label{tab:estudo_para_fatores_de_tamanho_do_sistema}
   \begin{tabular}{ccccccccc}         \toprule
   Operation & Percentile & N & B & T & NB & NT & BT & NBT\\ \midrule
-  
+
   read & 10 & 30 & 18 & 22 & 10 & 8 & 7 & 4 \\
-  
+
   read & 90 & 65 & 13 & 15 & 3 & 4 & 0 & 0 \\
-  
+
   write & 10 & 96 & 2 & 1 & 0 & 0 & 0 & 0 \\
-  
+
   write & 90 & 65 & 15 & 13 & 3 & 3 & 0 & 0 \\ \bottomrule
   \end{tabular}
 \end{table}
 
-The results of the study are shown in Table
-\ref{tab:estudo_para_fatores_de_tamanho_do_sistema}. The system size had
-greater influence on the results, with the number of benchmark instances and
-threads having a smaller influence.
-
-Although showing some influence on the results, these factors were fixed due to
-resource constraints (see Section ``Threats to validity''). Given the results,
-the fixed values were:
-
-\begin{itemize}
-
-\item Number of system nodes: 16
-
-\item Number of benchmark instances: 4
-
-\item Number of threads in each benchmark instance: 32
-
-\end{itemize}
-
-These values were selected because they resulted in the ``lightest''
-configuration, avoiding network bottlenecks and system overload. Although
-desirable, a greater number of nodes would imply lack of hardware homogeneity
-and operational difficulties due to the Grid'5000 rules.
-
+The levels for the final study in
+Table~\ref{tab:system_size_and_benchmark_size_factors} were selected because
+they resulted in the ``lightest'' configuration, avoiding network bottlenecks
+and system overload.  Although desirable, a greater number of nodes would imply
+lack of hardware homogeneity and operational difficulties due to the Grid'5000
+rules.
 %% ------------------------------------------------------------------------- %%
 \subsection{Database factors}
 
