@@ -37,6 +37,7 @@
 \addbibresource{cmb.bib}
 
 \usepackage{makecell}
+\usepackage{multirow}
 
 \title{Comparing the Performance of Eventual Consistency and Per-record
 Timeline Consistency in Geo-replicated Systems}
@@ -916,45 +917,138 @@ Locality & 50\% and 90\% & 2\\ \bottomrule
 
 The confidence level of the study is 99\% with accuracy of 2\%. These values
 are based on exploratory experiments to define the required sample size for the
-final study, where we needed to balance the significance of the results with
-the available resources. The higher the confidence level and accuracy, the
-larger the sample sizes needed to be \parencite{Jain1991}, consequently, the
-greater the period of time we needed to have nodes reserved in the cluster. Two
-replications of the study were used to estimate the variability of the
-experiments, the measured average coefficients of variation were 1\% for reads
-and 0.8\% for writes.
-
-\begin{figure}[h!]
-\caption{Boxplot of response times for 15 operations/s per thread.}
-\includegraphics[width=1.0\textwidth]{boxplot200.png}
-\label{fig:boxplot_dos_tempos_de_resposta}
-\end{figure}
+final study, where it was necessary to balance the significance of the results
+and the available resources. The higher the confidence level and accuracy, the
+larger the required sample sizes \parencite{Jain1991}, consequently, the longer
+the needed node reservation times in the Grid'5000 cluster. Two replications of
+the study were used to estimate the variability of the experiments, the
+measured average coefficients of variation were 1\% for reads and 0.8\% for
+writes.
 
 The system showed similar behavior for 100~ms, 200~ms and 300~ms latency
-levels, so we used only one of them on the presentation of the final results.
-The boxplot for the 200~ms latency level is shown in Figure
-\ref{fig:boxplot_dos_tempos_de_resposta}.
+levels, the difference being higher response times for larger latencies. The
+results in this section use only 200~ms. The same is valid for jitter, the
+system showed similar behavior, only with higher response times in the case of
+60\%. The results in this section correspond to a 60\% jitter.
+
+Figure~\ref{fig:boxplot_response_times} shows a boxplot with the response times
+for read and write operations and locality of 50\% and 90\%.
+Tables~\ref{tab:percentiles_reads} and \ref{tab:percentiles_writes} show
+percentiles of read and write response times. For all locality levels and for
+all modes, the median is in the order of a few milliseconds (as well as the
+25\textsuperscript{th} percentile), which means that in all cases at least 50\%
+of the requests were local.
+
+For a locality of 50\%, read operations are all local for all modes except
+\textit{lat}, in which case half of the requests were remote. For write
+operations, all modes except \textit{ev1} presented remote requests. 
+
+For a locality of 90\%, read operations are local at least up to the
+99\textsuperscript{th} percentile for \textit{ev1}, \textit{ev2} and
+\textit{any}. The performance of \textit{lat} improved, showing local requests
+on the 90\textsuperscript{th} percentile. The presence of a relatively high
+number of outliers in Figure~\ref{fig:boxplot_response_times} is explained by
+the cases when the master replica migrates after a request is sent by a client
+but before it arrives at the node. In this case, the node that was the master
+redirects the request to the new master, which means an extra round-trip over
+the WAN. Table~\ref{tab:percentiles_reads} shows that the percentile
+corresponding to a value smaller than locality (89\textsuperscript{th})
+represents local requests, while the percentile that is greater than locality
+(91\textsuperscript{st}) represents remote ones.
+
+For a locality of 90\%, all write operations for \textit{ev1} were local.  The
+75\textsuperscript{th} percentile corresponds to remote requests only for
+\textit{ev2}.  Actually, half of the requests are remote, since there is a 50\%
+chance of the data center receiving a request to host only one replica, so a
+request over the WAN is necessary to reach a second replica. As expected, this
+mode does not benefit from locality. In the case of \textit{any} and
+\textit{lat}, performance improved. For these modes,
+Table~\ref{tab:percentiles_reads} shows that the percentile corresponding to a
+value smaller than locality (89\textsuperscript{th}) represents local requests,
+while the percentile that is greater than locality (91\textsuperscript{st})
+represents remote requests. The reason for the presence of outliers is the same
+as the mentioned above for \textit{lat} operations.
+
+Although the nature of read and write operations is the same for both
+\textit{any} and \textit{lat}, the former consistently presented higher
+response times for remote operations as can be seen in
+Tables~\ref{tab:percentiles_reads} and \ref{tab:percentiles_writes}. This fact
+is explained by the fact that the experiments for \textit{any} had higher
+throughput than for \textit{lat} since all read requests were local, so the
+system was operating under higher load in this case.
+
+\begin{figure}[h!]
+\caption{Boxplot of response times for 15 operations/s per thread (latency = 200~ms, jitter = 60\%).}
+\includegraphics[width=1.0\textwidth]{boxplot200.png}
+\label{fig:boxplot_response_times}
+\end{figure}
+
+\begin{table}[h!]
+\caption{Percentiles of read response times in ms (latency = 200~ms, jitter = 60\%).}
+\label{tab:percentiles_reads}
+\begin{tabular}{lcccccccc} \toprule
+
+Locality & Mode & \multicolumn{4}{c}{Percentiles}\\& & 50 & 89 & 91 & 99 \\
+\midrule
+\multirow{ 4}{*}{0.5}
+& \textit{ev1} & 2.582 & 2.989 & 3.052 & 3.653 \\
+& \textit{ev2} & 2.324 & 2.619 & 2.67 & 3.225 \\
+& \textit{any} & 2.324 & 2.584 & 2.639 & 3.196 \\
+& \textit{lat} & 2.878 & 355.7 & 374.4 & 818.7 \\
+\hline
+\multirow{ 4}{*}{0.9}
+& \textit{ev1} & 2.542 & 2.968 & 3.007 & 3.638 \\
+& \textit{ev2} & 2.327 & 2.618 & 2.667 & 3.219 \\
+& \textit{any} & 2.363 & 2.709 & 2.74 & 3.307 \\
+& \textit{lat} & 2.348 & 3.239 & 223.2 & 1130 \\
+\bottomrule
+
+\end{tabular}
+\end{table}
+
+\begin{table}[h!]
+\caption{Percentiles of write response times in ms (latency = 200~ms, jitter = 60\%).}
+\label{tab:percentiles_writes}
+\begin{tabular}{lcccccccc} \toprule
+
+Locality & Mode & \multicolumn{4}{c}{Percentiles}\\& & 50 & 89 & 91 & 99 \\ \midrule
+\multirow{ 4}{*}{0.5}
+& \textit{ev1} & 3.592 & 4.176 & 4.229 & 4.893 \\
+& \textit{ev2} & 4.466 & 490.3 & 535.2 & 1228 \\
+& \textit{any} & 4.265 & 562.4 & 622.9 & 1536 \\
+& \textit{lat} & 4.023 & 434.2 & 453.3 & 832.5 \\
+\hline
+\multirow{ 4}{*}{0.9}
+& \textit{ev1} & 3.529 & 4.13 & 4.193 & 4.884 \\
+& \textit{ev2} & 4.436 & 490.2 & 535.6 & 1157 \\
+& \textit{any} & 3.45 & 4.701 & 329.2 & 1894 \\
+& \textit{lat} & 3.352 & 4.524 & 301.1 & 1028 \\
+\bottomrule
+
+\end{tabular}
+\end{table}
 
 The experimental results match the expected analytical results, where
 per-record timeline consistency shows the same level of performance as eventual
 consistency when data locality and read/write ratio are high.  If data locality
 is low (50\%), the performance of per-record timeline consistency is only
 comparable to eventual consistency for reads of any version, performance is hit
-for reads of latest version and writes.  Per-record timeline consistency
-becomes an interesting option when data locality is high (90\%), since most
-reads and writes are local. Given that reads of any version perform well under
-low data locality, per-record timeline consistency can also be an option for
-applications where the read/write ratio is high and slow writes are tolerable.
+for reads of latest version and writes. Per-record timeline consistency
+becomes an interesting option when data locality is high, since locality
+influences the proportion of local requests. Given that reads of any version
+perform well under low data locality, per-record timeline consistency can also
+be an option for applications where the read/write ratio is high and slow
+writes are tolerable.
 
 \begin{figure}[h!]
-\caption{Boxplot of response times for maximum load per thread.}
+\caption{Boxplot of response times for maximum load per thread (latency = 200~ms, jitter = 60\%).}
 \includegraphics[width=1.0\textwidth]{boxplot200_max.png}
-\label{fig:boxplot_dos_tempos_de_resposta_para_carga_maxima}
+\label{fig:boxplot_response_times_max}
 \end{figure}
 
 Although the request rate had been fixed at first, we ran the same experiment
 with maximum load instead of 15 operations/s per thread as a result
-verification. Figure~\ref{fig:boxplot_dos_tempos_de_resposta_para_carga_maxima}
+verification. Figure~\ref{fig:boxplot_response_times_max}
 shows that all modes showed an increase in response times, but the general
 behavior remained the same.
 
