@@ -148,22 +148,23 @@ replica closer to them than the master. For write performance, PNUTS implements
 heuristics that try to move the master closer to its clients.
 
 For the best of our knowledge, the literature does not have any other main
-references to per-record timeline consistency outside Yahoo!
-\parencite{Cooper2008,Kadambi2011,Ramakrishnan2012,Silberstein2012}. Also, no
-implementations were found, except for the one described in the same paper,
-which is not available outside Yahoo!.  However, a class of web applications
-could benefit from large-scale storage systems implementing this consistency
-model if it is shown to be as efficient as eventual consistency in particular
-situations. In this work, based on descriptions on the PNUTS paper, we
-implemented per-record timeline consistency in an open source NoSQL database
-and investigated under which workloads and network conditions it has similar
-performance as the same system using eventual consistency. The comparison was
-carried out through a formal experimental study. It started as a list of 33
-parameters. After fixing some of them due to resource constraints and
-eliminating others by factor selection studies, the final study used the six
-most influential factors to find the situations where per-record timeline
-consistency has similar performance than eventual consistency. The results make
-a useful resource for developers of large-scale web applications.
+references to systems using timeline consistency except for PNUTS at Yahoo!
+\parencite{Cooper2008,Kadambi2011,Ramakrishnan2012,Silberstein2012} and two
+LinkedIn systems \parencite{Rao2011,Qiao2013}. Although the papers describe the
+systems, their implementations are not available outside those companies.
+However, a class of web applications could benefit from large-scale storage
+systems implementing this consistency model if it is shown to be as efficient
+as eventual consistency in particular situations. In this work, based on
+descriptions on the PNUTS paper, we implemented per-record timeline consistency
+in an open source NoSQL database and investigated under which workloads and
+network conditions it has similar performance as the same system using eventual
+consistency. The comparison was carried out through a formal experimental
+study. It started as a list of 33 parameters. After fixing some of them due to
+resource constraints and eliminating others by factor selection studies, the
+final study used the six most influential factors to find the situations where
+per-record timeline consistency has similar performance than eventual
+consistency. The results make a useful resource for developers of large-scale
+web applications.
 
 %% ------------------------------------------------------------------------- %%
 \section{Eventual Consistency and Per-record Timeline Consistency}
