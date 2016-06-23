@@ -189,7 +189,7 @@ the ability to carry through operations, so a highly-available system must
 present both and thus tolerate some level of inconsistency. The CAP theorem
 makes clear the trade-offs involved in case of failure, however, there are also
 trade-offs under system's normal operation. PACELC is a refinement of CAP that
-adds performance to the the list of possible trade-offs, it states that if
+adds performance to the list of possible trade-offs, it states that if
 operating under a partition (P), a distributed system must trade off between
 availability (A) or consistency (C), else (E), it trades off between latency
 (L) or consistency (C) \parencite{Abadi2012}. Therefore, PACELC not only
@@ -387,7 +387,7 @@ request arrival rate.
 
 In this work, a factorial experiment was designed to study the effects of the
 different factors over the system performance. A full factorial experiment
-combines levels accross all factors, each combination being an experimental
+combines levels across all factors, each combination being an experimental
 unit \parencite{Jain1991}. The more factors and levels in a study, the more
 resources are needed to its execution. Moreover, usually a few factors explain
 most effects on the response. Therefore, a selection of the most influential
@@ -722,7 +722,7 @@ TCP variant (V) & CUBIC and H-TCP\\ \bottomrule
 
 Latency levels were based on a study reporting latencies between regions of the
 Amazon Web Services \parencite{Sovran2011}, in which the lowest latency between data
-centers in each U.S. coast was 82 ms and the highest was 277 ms between Ireland
+centers in each U.S. coast was 82~ms and the highest was~277 ms between Ireland
 and Singapore.
 
 Project PingER served as the basis for other factors \parencite{PingER2013}. In
@@ -823,8 +823,8 @@ arrival rate for each object is the same, while the skewed level means that the
 arrival rate follows a Pareto distribution. Considering the study used two data
 centers, a 50\% locality means that a request for a given object has the same
 probability of coming from any of the two data centers (which effectively means
-there is no locality of acces), while 90\% means that 90\% of accesses to a
-given object come from one data center and 10\% from the other.
+no locality), while 90\% means that 90\% of accesses to a given object come
+from one data center and 10\% from the other.
 
 As the modes behave differently depending on locality, we performed one set of
 experiments for each mode.
