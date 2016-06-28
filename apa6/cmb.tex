@@ -574,12 +574,13 @@ local and remote requests.
 %% ------------------------------------------------------------------------- %%
 \subsection{System size and benchmark size factors}
 
-The number of nodes and benchmark instances not only influenced the
-responses, but also influenced operational issues related to node reservation --
-by Grid'5000 rules, the greater the number of reserved nodes, the smaller the
+The number of nodes and benchmark instances not only influenced the responses,
+but also influenced operational issues related to node reservation -- by
+Grid'5000 rules, the greater the number of reserved nodes, the smaller the
 reservation time. Therefore, a study was done to determine the influence of
-these factors, Table~\ref{tab:system_size_and_benchmark_size_factors} shows
-the factors, the levels used in the 2\textsuperscript{k} experiment and the resulting levels for the final study.
+these factors, Table~\ref{tab:system_size_and_benchmark_size_factors} shows the
+factors, the levels used in the 2\textsuperscript{k} experiment and the
+resulting levels for the final study.
 
 \begin{table}[h!]
 \caption{System size and benchmark size factors and levels.}
@@ -599,7 +600,7 @@ Number of threads in each benchmark instance (T) & 32 and 64 & 32 (fixed) \\ \bo
 
 Table~\ref{tab:estudo_para_fatores_de_tamanho_do_sistema} shows the influence
 of factors and their interactions found with the 2\textsuperscript{k}
-experiment.  The system size had greater influence on the results, with the
+experiment. The system size had greater influence on the results, with the
 number of benchmark instances and threads having a smaller influence.
 
 \begin{table}[h!]
@@ -630,25 +631,33 @@ rules.
 \subsection{Database factors}
 
 The database size affects memory usage and bandwidth consumption in the nodes.
-Table~\ref{tab:database_factors_and_levels} shows the factors and their levels.
+Table~\ref{tab:database_factors_and_levels} shows the factors, the levels used
+in the 2\textsuperscript{k} experiment and the resulting levels for the final
+study. The 2\textsuperscript{k} levels result in low memory pressure on each
+node. The object size levels are based on a Facebook study on its caching
+systems \parencite{Atikoglu2012}.  Previous exploratory experiments with more
+objects showed similar results.
 
 \begin{table}[h!]
 \caption{Database factors and levels.}
 \label{tab:database_factors_and_levels}
 \begin{tabular}{lcc} \toprule
+Factor & \thead{Levels on \\ 2\textsuperscript{k} experiment} & \thead{Levels on \\final study} \\ \midrule
 
-Factor & Levels \\ \midrule
+Number of stored objects (O) & 64,000 and 256,000 & 128,000 (fixed)\\
 
-Number of stored objects (O) & 64,000 and 256,000\\
-
-Object sizes (S) & 100 and 10,000 bytes \\ \bottomrule
+Object sizes (S) & 100 and 10,000 bytes & 500 (fixed)\\ \bottomrule
 
 \end{tabular}  
 \end{table}
 
-These levels result in low memory pressure on each node. The object size levels
-are based on a Facebook study on its caching systems \parencite{Atikoglu2012}.
-Previous exploratory experiments with more objects showed similar results.
+Table~\ref{tab:estudo_para_fatores_de_banco_de_dados} shows the influence of
+factors and their interactions on response times. The number of objects did not
+affect system performance. Object size did not affect performance of remote
+requests, however, they correspond to 100\% of influence regarding local
+requests. Nevertheless, the coefficient of variation of local requests
+indicated that their influence was not as great - 19\% for reads and 16\% for
+writes.
 
 \begin{table}[h!]
   \caption{Study for database factors, O -- number of stored objects, S -- object
@@ -667,58 +676,21 @@ write & 90 & 0 & 0 & 100 & 0 & 0 & 0 & 0 \\ \bottomrule
   \label{tab:estudo_para_fatores_de_banco_de_dados}
 \end{table}
 
-The results of the study are shown in Table
-\ref{tab:estudo_para_fatores_de_banco_de_dados}. The number of objects did not
-affect system performance. Object size did not affect performance of remote
-requests, however, they correspond to 100\% of influence regarding local
-requests. Nevertheless, the CV of local requests indicated that their influence
-was not as great - 19\% for reads and 16\% for writes.
-
-Given the results, the fixed values were:
-
-\begin{itemize}
-
-\item Number of stored objects: 128,000
-
-\item Object sizes: 500
-
-\end{itemize}
-
-The number of stored objects influenced the warmup time, thus the lower the
-number, the faster the execution of experiments. Conversely, a too small number
-would result in an excessive number of conflicts for eventual consistency. For
-the size of stored objects, the value was chosen based on
-\parencite{Atikoglu2012}, which reports that 90\% of the objects are smaller
-than 500 bytes \parencite{Atikoglu2012}.
+Although the number of objects did not affect the response times, it influenced
+the warmup time -- the less objects, the less warmup was necessary and
+consequently the faster the execution of experiments. Conversely, a too small
+number would result in an excessive number of conflicts for eventual
+consistency. For the size of stored objects, the value was chosen based on the
+same Facebook study, which reports that 90\% of the objects are smaller than
+500 bytes \parencite{Atikoglu2012}.
 
 %% ------------------------------------------------------------------------- %%
 \subsection{Network factors}
 
 Given the purpose of this work, the study for network factors was one of the
 most important for factor selection. Table~\ref{tab:network_factors_and_levels}
-shows the factors and their levels.
-
-\begin{table}[h!]
-\caption{Network factors and levels.}
-\label{tab:network_factors_and_levels}
-\begin{tabular}{lcc} \toprule
-
-Factor & Levels \\ \midrule
-
-WAN latency (L) & 100 and 300 ms \\
-
-WAN jitter (J) & 1 and 60\% \\
-
-WAN packet loss rate (P) & 0.01 and 0.3\% \\
-
-WAN packet duplication rate (D) & 0.05 and 5\% \\
-
-WAN packet reordering rate (R) & 0.05 and 5\% \\
-
-TCP variant (V) & CUBIC and H-TCP\\ \bottomrule
-
-\end{tabular}  
-\end{table}
+shows the factors, the levels used in the 2\textsuperscript{k} experiment and
+the resulting levels for the final study.
 
 Latency levels were based on a study reporting latencies between regions of the
 Amazon Web Services \parencite{Sovran2011}, in which the lowest latency between data
@@ -744,6 +716,34 @@ values between 100~ms and 160~ms. The generated values followed the normal
 distribution within the specified range of latency.
 
 \begin{table}[h!]
+\caption{Network factors and levels.}
+\label{tab:network_factors_and_levels}
+\begin{tabular}{lcc} \toprule
+Factor & \thead{Levels on \\ 2\textsuperscript{k} experiment} & \thead{Levels on \\final study} \\ \midrule
+
+WAN latency (L) & 100 and 300 ms & 0, 100, 200 and 300 ms\\
+
+WAN jitter (J) & 1 and 60\% & 0 and 60\%\\
+
+WAN packet loss rate (P) & 0.01 and 0.3\% & 0\% (fixed)\\
+
+WAN packet duplication rate (D) & 0.05 and 5\% & 0\% (fixed) \\
+
+WAN packet reordering rate (R) & 0.05 and 5\% & 0\% (fixed) \\
+
+TCP variant (V) & CUBIC and H-TCP & CUBIC (fixed) \\ \bottomrule
+
+\end{tabular}  
+\end{table}
+
+Table~\ref{tab:estudo_para_fatores_de_rede} shows the influence of factors and
+their interactions on response times, columns of interactions between factors
+with all cells less than 1\% were suppressed for the sake of space. The
+coefficient of variation of local request was 1\%, so their rows were also
+suppressed -- which indicates that WAN did not affect local requests, as
+expected.
+
+\begin{table}[h!]
 \caption{Network factors study. L -- WAN latency, J -- WAN jitter, P -- WAN
 packet loss rate, D -- WAN packet duplication rate, R -- WAN packet reordering
 rate, V -- TCP variant}
@@ -760,63 +760,22 @@ write & 90 & 69 & 23 & 1 & 0 & 0 & 0 & 6\\ \bottomrule
 
 \end{table}
 
-The result of the study is presented in Table
-\ref{tab:estudo_para_fatores_de_rede}, columns of interactions between factors
-with all cells less than 1\% were suppressed for the sake of space. The
-responses of local requests showed CVs of 1\%, so their rows were also
-suppressed -- which indicates that WAN does not affect local requests, as
-expected.
-
-Latency, jitter and the first order interaction between them make up for close to 100\% of the response. Therefore, the selected levels for
-these factors were:
-
-\begin{itemize}
-
-\item WAN latency (ms): 0, 100, 200 and 300
-
-\item WAN jitter (\%): 0 and 60
-
-\end{itemize}
-
-Latency and jitter at zero are equivalent to having the entire system operating
-over a LAN. The results obtained in these cases were used as aid in the
-interpretation of other results, but were not considered in the final study,
-since they are not realistic.
-
-The fixed values of the disregarded factors were:
-
-\begin{itemize}
-
-\item WAN packet loss rate: 0\%
-
-\item WAN packet duplication rate: 0\%
-
-\item WAN packet reordering rate: 0\%
-
-\item TCP variant (T): CUBIC
-
-\end{itemize}
+The selected factors were latency and jitter since these factors along with
+their first order interaction make up for close to 100\% of the response, the
+remaining candidate factors were fixed as can be seen in the last column of
+Table~\ref{tab:network_factors_and_levels}. Latency and jitter at zero are
+equivalent to having the entire system operating over a LAN. The results
+obtained in these cases were used as aid in the interpretation of other
+results, but were not considered in the final study, since they are not
+realistic.
 
 %% ------------------------------------------------------------------------- %%
 \subsection{Workload factors}
 
-Along with network factors, this was one of the most important studies. Table~\ref{tab:workload_factors_and_levels} shows the factors and levels.
-
-\begin{table}[h!]
-\caption{Workload factors and levels.}
-\label{tab:workload_factors_and_levels}
-\begin{tabular}{lcc} \toprule
-
-Factor & Levels \\ \midrule
-
-Read / write ratio (R) & 2:1 and 10:1 \\
-
-Object popularity (P) & uniform and skewed \\
-
-Locality (X) & 50\% and 90\% \\ \bottomrule
-
-\end{tabular}
-\end{table}
+Along with network factors, this was one of the most important studies.
+Table~\ref{tab:workload_factors_and_levels} shows the factors, the levels used
+in the 2\textsuperscript{k} experiment and the resulting levels for the final
+study.
 
 The uniform level of object popularity means that the average of the request
 arrival rate for each object is the same, while the skewed level means that the
@@ -826,8 +785,27 @@ probability of coming from any of the two data centers (which effectively means
 no locality), while 90\% means that 90\% of accesses to a given object come
 from one data center and 10\% from the other.
 
+\begin{table}[h!]
+\caption{Workload factors and levels.}
+\label{tab:workload_factors_and_levels}
+\begin{tabular}{lcc} \toprule
+Factor & \thead{Levels on \\ 2\textsuperscript{k} experiment} & \thead{Levels on \\final study} \\ \midrule
+
+Read / write ratio (R) & 2:1 and 10:1 & 2:1 (fixed)\\
+
+Locality (X) & 50\% and 90\%  & 50\% and 90\% \\
+
+Object popularity (P) & uniform and skewed & uniform (fixed) \\ \bottomrule
+
+\end{tabular}
+\end{table}
+
 As the modes behave differently depending on locality, we performed one set of
 experiments for each mode.
+Table~\ref{tab:estudo_para_fatores_de_carga_de_trabalho} shows the results of
+the experiment. Columns with all values smaller than 5\% were removed for the
+sake of space. The coefficient of variation of local requests were close to 2\%
+for all modes, indicating that none of the factors influenced local requests.
 
 \begin{table}[h!]
 \caption{Study for workload factors, L -- latency, R -- read / write ratio, P
@@ -848,14 +826,8 @@ Mode & R & X & P & L & RX & RL & XL & PL & XPL\\ \midrule
 \label{tab:estudo_para_fatores_de_carga_de_trabalho}
 \end{table}
 
-The results of the study are shown in Table
-\ref{tab:estudo_para_fatores_de_carga_de_trabalho}, in which columns with all
-values smaller than 5\% were removed for the sake of space. The results for
-local requests showed CVs around 2\% for all modes, indicating that none of the
-factors influenced local requests.
-
 As expected, locality and latency influenced responses in general. The impact
-of popularity of objects is virtually nil. Although some modes were apparently
+of popularity of objects was virtually nil. Although some modes were apparently
 impacted by read/write ratio, this impact was a consequence of the relationship
 between local and remote requests. For \textit{ev1}, both reads and writes are
 local and the read/write ratio and their interactions with other factors have
@@ -869,24 +841,6 @@ local and writes depend on locality, so it is impacted by the read/write ratio.
 The read/write ratio would likely influence the response if the storage
 mechanism was disk instead of memory, since writes would be affected by the
 write time to disk, while reads could be faster due to disk caching.
-
-Therefore, only locality was selected as a factor:
-
-\begin{itemize}
-
-\item Locality (\%): 50 and 90
-
-\end{itemize}
-
-The fixed values of the disregarded factors were:
-
-\begin{itemize}
-
-\item Read/write ratio: 2:1
-
-\item Object popularity: uniform
-
-\end{itemize}
 
 %% ------------------------------------------------------------------------- %%
 \section{Final Study and Results}
