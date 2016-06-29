@@ -898,7 +898,7 @@ distribution of response times when locality is 90\%. It is possible to see
 that the distribution of response times of some modes are bimodal -- the
 topmost region representing remote requests while the bottommost representing
 local requests. The horizontal lines to the left and right of the main axis of
-each bean represent the mean of the response times of that mode when locality
+each bean represent the means of the response times of that mode when locality
 is 50\% and 90\% respectively.
 
 Figure~\ref{fig:beanplot_get} shows the beanplot with the response times of
@@ -932,7 +932,7 @@ per-record timeline consistency. For both \textit{any} and \textit{lat}, when
 locality changes from 50\% to 90\%, the density shape of local requests become
 thicker while the density shape of remote requests becomes thinner. The
 behavior of each mode can also be viewed by the horizontal lines representing
-the mean of the response times. For \textit{ev1} and \textit{ev2} the average
+the means of the response times. For \textit{ev1} and \textit{ev2} the average
 does not change with locality, while in the case of \textit{any} and
 \textit{lat} it decreases. The reason for requests reaching the 1~s level on
 read operations applies to write operations as well.
@@ -953,15 +953,14 @@ under higher load in this case.
 
 The experimental results match the expected analytical results, where
 per-record timeline consistency shows the same level of performance as eventual
-consistency when data locality and read/write ratio are high.  If data locality
+consistency when data locality is high. If data locality
 is low (50\%), the performance of per-record timeline consistency is only
 comparable to eventual consistency for reads of any version, performance is hit
 for reads of latest version and writes. Per-record timeline consistency
 becomes an interesting option when data locality is high, since locality
 influences the proportion of local requests. Given that reads of any version
-perform well under low data locality, per-record timeline consistency can also
-be an option for applications where the read/write ratio is high and slow
-writes are tolerable.
+perform well under low data locality, per-record timeline consistency can still
+be an option if slow writes are tolerable.
 
 Even in cases where data locality is high, per-record timeline consistency may
 not be an alternative due to performance variability. For applications where
