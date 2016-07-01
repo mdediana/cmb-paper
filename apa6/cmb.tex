@@ -624,8 +624,8 @@ Table~\ref{tab:database_factors_and_levels} shows the factors, the levels used
 in the 2\textsuperscript{k} experiment and the resulting levels for the final
 study. The 2\textsuperscript{k} levels result in low memory pressure on each
 node. The object size levels are based on a Facebook study on its caching
-systems \parencite{Atikoglu2012}.  Previous exploratory experiments with more
-objects showed similar results.
+systems \parencite{Atikoglu2012}. Our previous exploratory experiments with
+more objects showed similar results.
 
 \begin{table}[h!]
 \caption{Database factors and levels.}
@@ -866,16 +866,16 @@ resources is necessary in this type of experimental study -- the higher the
 confidence level and accuracy, the larger the required sample sizes
 \parencite{Jain1991}, consequently, the longer the needed node reservation
 times in the Grid'5000 cluster. Two replications of the study were used to
-estimate the variability of the experiments, the measured average coefficients
+estimate the variability of the experiments. The measured average coefficients
 of variation were 1\% for reads and 0.8\% for writes.
 
 The system showed similar behavior for 100~ms, 200~ms and 300~ms latency
-levels, the difference being higher response times for larger latencies as
-expected. The results in this section use only 200~ms. Although the request
-rate had been fixed at first, we ran the same experiment with maximum load
-instead of 15 operations/s per thread and we verified that all modes showed an
-increase in response times, but the general behavior of the system remained the
-same.
+levels, the difference being higher response times for larger latencies, as
+expected. The results in this section use only the 200~ms latency level.
+Although the request rate had been fixed at first, we ran the same experiment
+with maximum load instead of 15 operations/s per thread and we verified that
+all modes showed an increase in response times, but the general behavior of the
+system remained the same.
 
 Figures~\ref{fig:beanplot_get} and \ref{fig:beanplot_upd} show beanplots
 with the response times of read and write operations respectively. The left
@@ -896,12 +896,12 @@ show a single region with local requests. It is also possible to see that
 locality does not affect local requests, as expected. In the case of
 \textit{lat}, response times decrease with the increase in locality, as can be
 seen by the thinner density shape of remote requests and thicker density shape
-of local requests when locality changes from 50\% to 90\%. Some remote requests
-reaching the 1~s level is explained by high jitter non-linear effects on
-latency and also by mastership migrations -- if the mastership of a record migrates
-after a request is sent by a client but before it arrives at the node, the node
-that was the master redirects the request to the new master, which means an
-extra round-trip over the WAN.
+of local requests when locality changes from 50\% to 90\%. Few remote requests
+showed high response times of the order of 1~s. Besides high jitter, this can be
+explained by mastership migrations. If the mastership of a record migrates
+after a request is sent by a client but before it arrives at the master node,
+the node that was the master redirects the request to the new master, which
+means an extra round-trip over the WAN.
 
 \begin{figure}[h!]
 \caption{Beanplot of read read response times (latency = 200~ms, jitter = 60\%).}
@@ -916,13 +916,13 @@ symmetric form of \textit{ev1} and \textit{ev2} indicates same behavior
 independent of the locality, which means that these modes are not affected by
 it. As opposed to eventual consistency, locality affects response times on
 per-record timeline consistency. For both \textit{any} and \textit{lat}, when
-locality changes from 50\% to 90\%, the density shape of local requests become
+locality changes from 50\% to 90\%, the density shape of local requests becomes
 thicker while the density shape of remote requests becomes thinner. The
 behavior of each mode can also be viewed by the horizontal lines representing
-the means of the response times. For \textit{ev1} and \textit{ev2} the average
+the means of the response times. For \textit{ev1} and \textit{ev2}, the average
 does not change with locality, while in the case of \textit{any} and
-\textit{lat} it decreases. The reason for a few requests reaching the 1~s level
-on read operations applies to write operations as well.
+\textit{lat}, it decreases. The reason for the response times of a few reads 
+reaching 1~s is the same as for the write requests.
 
 \begin{figure}[h!]
 \caption{Beanplot of write response times (latency = 200~ms, jitter = 60\%).}
